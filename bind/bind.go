@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"go/format"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -34,11 +35,8 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/frostornge/solgen/deployments"
-
-	"log"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/frostornge/solgen/deployments"
 )
 
 // Lang is a target programming language selector to generate bindings for.
