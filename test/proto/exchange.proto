@@ -6,25 +6,20 @@ import "google/protobuf/empty.proto";
 
 // Exchange
 service Exchange {
-	rpc order(RequestOrder) returns (google.protobuf.Empty);
-	rpc settle(RequestSettle) returns (google.protobuf.Empty);
+	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
 	rpc reject(RequestReject) returns (google.protobuf.Empty);
 	rpc getOffer(RequestGetOffer) returns (ResponseGetOffer);
+	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
 	rpc prepare(RequestPrepare) returns (ResponsePrepare);
 	rpc addDataIds(RequestAddDataIds) returns (google.protobuf.Empty);
-	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
+	rpc order(RequestOrder) returns (google.protobuf.Empty);
+	rpc settle(RequestSettle) returns (google.protobuf.Empty);
 	rpc offerExists(RequestOfferExists) returns (ResponseOfferExists);
-	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
 }
 
 
-// order(bytes8)
-message RequestOrder {
-	string offerId = 1;
-}
-
-// settle(bytes8)
-message RequestSettle {
+// cancel(bytes8)
+message RequestCancel {
 	string offerId = 1;
 }
 
@@ -59,6 +54,17 @@ message ResponseGetOffer {
 	XYX__tmpStruct1 struct1 = 1;
 }
 
+// getOfferMembers(bytes8)
+message RequestGetOfferMembers {
+	string offerId = 1;
+}
+
+// getOfferMembers(bytes8)
+message ResponseGetOfferMembers {
+	string array1 = 1;
+	string array2 = 2;
+}
+
 // prepare(string,address,address,bytes4,bytes,bytes20[])
 message RequestPrepare {
 	string provider = 1;
@@ -80,8 +86,13 @@ message RequestAddDataIds {
 	repeated string dataIds = 2;
 }
 
-// cancel(bytes8)
-message RequestCancel {
+// order(bytes8)
+message RequestOrder {
+	string offerId = 1;
+}
+
+// settle(bytes8)
+message RequestSettle {
 	string offerId = 1;
 }
 
@@ -93,17 +104,6 @@ message RequestOfferExists {
 // offerExists(bytes8)
 message ResponseOfferExists {
 	bool bool1 = 1;
-}
-
-// getOfferMembers(bytes8)
-message RequestGetOfferMembers {
-	string offerId = 1;
-}
-
-// getOfferMembers(bytes8)
-message ResponseGetOfferMembers {
-	string array1 = 1;
-	string array2 = 2;
 }
 
 

@@ -6,25 +6,15 @@ import "google/protobuf/empty.proto";
 
 // ControllerRegistry
 service ControllerRegistry {
-	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
-	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
-	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
 	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
 	rpc register(RequestRegister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
 	rpc exists(RequestExists) returns (ResponseExists);
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
 }
 
-
-// owner()
-message ResponseOwner {
-	string array1 = 1;
-}
-
-// isOwner()
-message ResponseIsOwner {
-	bool bool1 = 1;
-}
 
 // transferOwnership(address)
 message RequestTransferOwnership {
@@ -58,6 +48,16 @@ message RequestExists {
 
 // exists(address)
 message ResponseExists {
+	bool bool1 = 1;
+}
+
+// owner()
+message ResponseOwner {
+	string array1 = 1;
+}
+
+// isOwner()
+message ResponseIsOwner {
 	bool bool1 = 1;
 }
 

@@ -6,53 +6,25 @@ import "google/protobuf/empty.proto";
 
 // Accounts
 service Accounts {
-	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
 	rpc setController(RequestSetController) returns (google.protobuf.Empty);
-	rpc isControllerOf(RequestIsControllerOf) returns (ResponseIsControllerOf);
-	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
-	rpc create(google.protobuf.Empty) returns (google.protobuf.Empty);
-	rpc createTemporary(RequestCreateTemporary) returns (google.protobuf.Empty);
 	rpc getAccount(RequestGetAccount) returns (ResponseGetAccount);
-	rpc getAccountId(RequestGetAccountId) returns (ResponseGetAccountId);
 	rpc getAccountIdFromSignature(RequestGetAccountIdFromSignature) returns (ResponseGetAccountIdFromSignature);
-	rpc isTemporary(RequestIsTemporary) returns (ResponseIsTemporary);
-	rpc exists(RequestExists) returns (ResponseExists);
+	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
 	rpc identityHashToAccount(RequestIdentityHashToAccount) returns (ResponseIdentityHashToAccount);
 	rpc accounts(RequestAccounts) returns (ResponseAccounts);
+	rpc createTemporary(RequestCreateTemporary) returns (google.protobuf.Empty);
+	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
+	rpc create(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc getAccountId(RequestGetAccountId) returns (ResponseGetAccountId);
+	rpc isTemporary(RequestIsTemporary) returns (ResponseIsTemporary);
+	rpc isControllerOf(RequestIsControllerOf) returns (ResponseIsControllerOf);
+	rpc exists(RequestExists) returns (ResponseExists);
 }
 
-
-// unlockTemporary(bytes32,address,bytes)
-message RequestUnlockTemporary {
-	string identityPreimage = 1;
-	string newOwner = 2;
-	string passwordSignature = 3;
-}
 
 // setController(address)
 message RequestSetController {
 	string controller = 1;
-}
-
-// isControllerOf(address,bytes8)
-message RequestIsControllerOf {
-	string sender = 1;
-	string accountId = 2;
-}
-
-// isControllerOf(address,bytes8)
-message ResponseIsControllerOf {
-	bool bool1 = 1;
-}
-
-// numberOfAccounts()
-message ResponseNumberOfAccounts {
-	string ptr1 = 1;
-}
-
-// createTemporary(bytes32)
-message RequestCreateTemporary {
-	string identityHash = 1;
 }
 
 // getAccount(bytes8)
@@ -72,16 +44,6 @@ message ResponseGetAccount {
 	XYX__tmpStruct1 struct1 = 1;
 }
 
-// getAccountId(address)
-message RequestGetAccountId {
-	string sender = 1;
-}
-
-// getAccountId(address)
-message ResponseGetAccountId {
-	string array1 = 1;
-}
-
 // getAccountIdFromSignature(bytes32,bytes)
 message RequestGetAccountIdFromSignature {
 	string messageHash = 1;
@@ -93,24 +55,9 @@ message ResponseGetAccountIdFromSignature {
 	string array1 = 1;
 }
 
-// isTemporary(bytes8)
-message RequestIsTemporary {
-	string accountId = 1;
-}
-
-// isTemporary(bytes8)
-message ResponseIsTemporary {
-	bool bool1 = 1;
-}
-
-// exists(bytes8)
-message RequestExists {
-	string accountId = 1;
-}
-
-// exists(bytes8)
-message ResponseExists {
-	bool bool1 = 1;
+// numberOfAccounts()
+message ResponseNumberOfAccounts {
+	string ptr1 = 1;
 }
 
 // identityHashToAccount(bytes32)
@@ -134,6 +81,59 @@ message ResponseAccounts {
 	uint32 status = 2;
 	string controller = 3;
 	string passwordProof = 4;
+}
+
+// createTemporary(bytes32)
+message RequestCreateTemporary {
+	string identityHash = 1;
+}
+
+// unlockTemporary(bytes32,address,bytes)
+message RequestUnlockTemporary {
+	string identityPreimage = 1;
+	string newOwner = 2;
+	string passwordSignature = 3;
+}
+
+// getAccountId(address)
+message RequestGetAccountId {
+	string sender = 1;
+}
+
+// getAccountId(address)
+message ResponseGetAccountId {
+	string array1 = 1;
+}
+
+// isTemporary(bytes8)
+message RequestIsTemporary {
+	string accountId = 1;
+}
+
+// isTemporary(bytes8)
+message ResponseIsTemporary {
+	bool bool1 = 1;
+}
+
+// isControllerOf(address,bytes8)
+message RequestIsControllerOf {
+	string sender = 1;
+	string accountId = 2;
+}
+
+// isControllerOf(address,bytes8)
+message ResponseIsControllerOf {
+	bool bool1 = 1;
+}
+
+// exists(bytes8)
+message RequestExists {
+	string accountId = 1;
+}
+
+// exists(bytes8)
+message ResponseExists {
+	bool bool1 = 1;
 }
 
 

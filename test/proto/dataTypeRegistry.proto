@@ -6,19 +6,13 @@ import "google/protobuf/empty.proto";
 
 // DataTypeRegistry
 service DataTypeRegistry {
-	rpc register(RequestRegister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
 	rpc exists(RequestExists) returns (ResponseExists);
 	rpc isOwner(RequestIsOwner) returns (ResponseIsOwner);
 	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
+	rpc register(RequestRegister) returns (google.protobuf.Empty);
 }
 
-
-// register(string,bytes32)
-message RequestRegister {
-	string name = 1;
-	string schemaHash = 2;
-}
 
 // get(string)
 message RequestGet {
@@ -60,6 +54,12 @@ message ResponseIsOwner {
 // unregister(string)
 message RequestUnregister {
 	string name = 1;
+}
+
+// register(string,bytes32)
+message RequestRegister {
+	string name = 1;
+	string schemaHash = 2;
 }
 
 
