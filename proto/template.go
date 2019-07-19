@@ -34,7 +34,7 @@ func Render(path string, c Contract) error {
 }
 
 const tmpl = `
-// Auto Generated. DO NOT EDIT!
+// Auto Generated. Feel free to EDIT!
 syntax = "proto3";
 package airbloc.{{.PackageName}};
 
