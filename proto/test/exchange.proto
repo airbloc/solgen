@@ -1,5 +1,5 @@
 
-// Auto Generated. DO NOT EDIT!
+// Auto Generated. Feel free to EDIT!
 syntax = "proto3";
 package airbloc.exchange;
 
@@ -7,17 +7,22 @@ import "google/protobuf/empty.proto";
 
 // Exchange
 service Exchange {
+	rpc reject(RequestReject) returns (google.protobuf.Empty);
 	rpc prepare(RequestPrepare) returns (ResponsePrepare);
-	rpc order(RequestOrder) returns (google.protobuf.Empty);
-	rpc settle(RequestSettle) returns (google.protobuf.Empty);
-	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
 	rpc addDataIds(RequestAddDataIds) returns (google.protobuf.Empty);
 	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
-	rpc reject(RequestReject) returns (google.protobuf.Empty);
+	rpc settle(RequestSettle) returns (google.protobuf.Empty);
+	rpc order(RequestOrder) returns (google.protobuf.Empty);
 	rpc offerExists(RequestOfferExists) returns (ResponseOfferExists);
 	rpc getOffer(RequestGetOffer) returns (ResponseGetOffer);
+	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
 }
 
+
+// reject(bytes8)
+message RequestReject {
+	string offerId = 1;
+}
 
 // prepare(string,address,address,bytes4,bytes,bytes20[])
 message RequestPrepare {
@@ -34,27 +39,6 @@ message ResponsePrepare {
 	string array1 = 1;
 }
 
-// order(bytes8)
-message RequestOrder {
-	string offerId = 1;
-}
-
-// settle(bytes8)
-message RequestSettle {
-	string offerId = 1;
-}
-
-// getOfferMembers(bytes8)
-message RequestGetOfferMembers {
-	string offerId = 1;
-}
-
-// getOfferMembers(bytes8)
-message ResponseGetOfferMembers {
-	string array1 = 1;
-	string array2 = 2;
-}
-
 // addDataIds(bytes8,bytes20[])
 message RequestAddDataIds {
 	string offerId = 1;
@@ -66,8 +50,13 @@ message RequestCancel {
 	string offerId = 1;
 }
 
-// reject(bytes8)
-message RequestReject {
+// settle(bytes8)
+message RequestSettle {
+	string offerId = 1;
+}
+
+// order(bytes8)
+message RequestOrder {
 	string offerId = 1;
 }
 
@@ -105,6 +94,17 @@ message ResponseGetOffer {
 		uint32 status = 7;
 	}
 	XYX__tmpStruct1 struct1 = 1;
+}
+
+// getOfferMembers(bytes8)
+message RequestGetOfferMembers {
+	string offerId = 1;
+}
+
+// getOfferMembers(bytes8)
+message ResponseGetOfferMembers {
+	string array1 = 1;
+	string array2 = 2;
 }
 
 

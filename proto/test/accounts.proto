@@ -1,5 +1,5 @@
 
-// Auto Generated. DO NOT EDIT!
+// Auto Generated. Feel free to EDIT!
 syntax = "proto3";
 package airbloc.accounts;
 
@@ -7,46 +7,21 @@ import "google/protobuf/empty.proto";
 
 // Accounts
 service Accounts {
-	rpc accounts(RequestAccounts) returns (ResponseAccounts);
-	rpc createTemporary(RequestCreateTemporary) returns (google.protobuf.Empty);
-	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
 	rpc setController(RequestSetController) returns (google.protobuf.Empty);
 	rpc getAccount(RequestGetAccount) returns (ResponseGetAccount);
 	rpc getAccountId(RequestGetAccountId) returns (ResponseGetAccountId);
 	rpc isControllerOf(RequestIsControllerOf) returns (ResponseIsControllerOf);
-	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
+	rpc exists(RequestExists) returns (ResponseExists);
 	rpc identityHashToAccount(RequestIdentityHashToAccount) returns (ResponseIdentityHashToAccount);
+	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
 	rpc create(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc createTemporary(RequestCreateTemporary) returns (google.protobuf.Empty);
 	rpc getAccountIdFromSignature(RequestGetAccountIdFromSignature) returns (ResponseGetAccountIdFromSignature);
 	rpc isTemporary(RequestIsTemporary) returns (ResponseIsTemporary);
-	rpc exists(RequestExists) returns (ResponseExists);
+	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
+	rpc accounts(RequestAccounts) returns (ResponseAccounts);
 }
 
-
-// accounts(bytes8)
-message RequestAccounts {
-	string array1 = 1;
-}
-
-// accounts(bytes8)
-message ResponseAccounts {
-	string owner = 1;
-	uint32 status = 2;
-	string controller = 3;
-	string passwordProof = 4;
-}
-
-// createTemporary(bytes32)
-message RequestCreateTemporary {
-	string identityHash = 1;
-}
-
-// unlockTemporary(bytes32,address,bytes)
-message RequestUnlockTemporary {
-	string identityPreimage = 1;
-	string newOwner = 2;
-	string passwordSignature = 3;
-}
 
 // setController(address)
 message RequestSetController {
@@ -91,9 +66,14 @@ message ResponseIsControllerOf {
 	bool bool1 = 1;
 }
 
-// numberOfAccounts()
-message ResponseNumberOfAccounts {
-	string ptr1 = 1;
+// exists(bytes8)
+message RequestExists {
+	string accountId = 1;
+}
+
+// exists(bytes8)
+message ResponseExists {
+	bool bool1 = 1;
 }
 
 // identityHashToAccount(bytes32)
@@ -104,6 +84,18 @@ message RequestIdentityHashToAccount {
 // identityHashToAccount(bytes32)
 message ResponseIdentityHashToAccount {
 	string array1 = 1;
+}
+
+// unlockTemporary(bytes32,address,bytes)
+message RequestUnlockTemporary {
+	string identityPreimage = 1;
+	string newOwner = 2;
+	string passwordSignature = 3;
+}
+
+// createTemporary(bytes32)
+message RequestCreateTemporary {
+	string identityHash = 1;
 }
 
 // getAccountIdFromSignature(bytes32,bytes)
@@ -127,14 +119,22 @@ message ResponseIsTemporary {
 	bool bool1 = 1;
 }
 
-// exists(bytes8)
-message RequestExists {
-	string accountId = 1;
+// numberOfAccounts()
+message ResponseNumberOfAccounts {
+	string ptr1 = 1;
 }
 
-// exists(bytes8)
-message ResponseExists {
-	bool bool1 = 1;
+// accounts(bytes8)
+message RequestAccounts {
+	string array1 = 1;
+}
+
+// accounts(bytes8)
+message ResponseAccounts {
+	string owner = 1;
+	uint32 status = 2;
+	string controller = 3;
+	string passwordProof = 4;
 }
 
 

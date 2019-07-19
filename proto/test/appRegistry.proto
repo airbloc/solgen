@@ -1,5 +1,5 @@
 
-// Auto Generated. DO NOT EDIT!
+// Auto Generated. Feel free to EDIT!
 syntax = "proto3";
 package airbloc.appRegistry;
 
@@ -7,44 +7,18 @@ import "google/protobuf/empty.proto";
 
 // AppRegistry
 service AppRegistry {
-	rpc exists(RequestExists) returns (ResponseExists);
-	rpc isOwner0(RequestIsOwner0) returns (ResponseIsOwner0);
-	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
-	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
 	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
 	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
+	rpc isOwner0(RequestIsOwner0) returns (ResponseIsOwner0);
 	rpc transferAppOwner(RequestTransferAppOwner) returns (google.protobuf.Empty);
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
 	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
 	rpc register(RequestRegister) returns (google.protobuf.Empty);
+	rpc exists(RequestExists) returns (ResponseExists);
 }
 
-
-// exists(string)
-message RequestExists {
-	string appName = 1;
-}
-
-// exists(string)
-message ResponseExists {
-	bool bool1 = 1;
-}
-
-// isOwner0(string,address)
-message RequestIsOwner0 {
-	string appName = 1;
-	string owner = 2;
-}
-
-// isOwner0(string,address)
-message ResponseIsOwner0 {
-	bool bool1 = 1;
-}
-
-// transferOwnership(address)
-message RequestTransferOwnership {
-	string newOwner = 1;
-}
 
 // unregister(string)
 message RequestUnregister {
@@ -72,6 +46,17 @@ message ResponseIsOwner {
 	bool bool1 = 1;
 }
 
+// isOwner0(string,address)
+message RequestIsOwner0 {
+	string appName = 1;
+	string owner = 2;
+}
+
+// isOwner0(string,address)
+message ResponseIsOwner0 {
+	bool bool1 = 1;
+}
+
 // transferAppOwner(string,address)
 message RequestTransferAppOwner {
 	string appName = 1;
@@ -83,9 +68,24 @@ message ResponseOwner {
 	string array1 = 1;
 }
 
+// transferOwnership(address)
+message RequestTransferOwnership {
+	string newOwner = 1;
+}
+
 // register(string)
 message RequestRegister {
 	string appName = 1;
+}
+
+// exists(string)
+message RequestExists {
+	string appName = 1;
+}
+
+// exists(string)
+message ResponseExists {
+	bool bool1 = 1;
 }
 
 
