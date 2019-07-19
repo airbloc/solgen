@@ -1,11 +1,11 @@
 package proto
 
 import (
+	"html/template"
 	"os"
-	"text/template"
 )
 
-func Render(path string, c Contract) error {
+func render(path string, c Contract) error {
 	t := template.New("test")
 
 	t, err := t.Parse(tmpl)
@@ -33,8 +33,7 @@ func Render(path string, c Contract) error {
 	return nil
 }
 
-const tmpl = `
-// Auto Generated. Feel free to EDIT!
+const tmpl = `// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.{{.PackageName}};
 

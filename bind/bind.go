@@ -34,7 +34,7 @@ import (
 	"text/template"
 	"unicode"
 
-	"github.com/frostornge/sol2proto/deployments"
+	"github.com/frostornge/solgen/deployments"
 
 	"log"
 
