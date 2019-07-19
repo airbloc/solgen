@@ -8,6 +8,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/stretchr/testify v1.3.0 // indirect
+	github.com/valyala/fastjson v1.4.1
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
