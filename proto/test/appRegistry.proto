@@ -1,0 +1,91 @@
+
+// Auto Generated. DO NOT EDIT!
+syntax = "proto3";
+package airbloc.appRegistry;
+
+import "google/protobuf/empty.proto";
+
+// AppRegistry
+service AppRegistry {
+	rpc exists(RequestExists) returns (ResponseExists);
+	rpc isOwner0(RequestIsOwner0) returns (ResponseIsOwner0);
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
+	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
+	rpc get(RequestGet) returns (ResponseGet);
+	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
+	rpc transferAppOwner(RequestTransferAppOwner) returns (google.protobuf.Empty);
+	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc register(RequestRegister) returns (google.protobuf.Empty);
+}
+
+
+// exists(string)
+message RequestExists {
+	string appName = 1;
+}
+
+// exists(string)
+message ResponseExists {
+	bool bool1 = 1;
+}
+
+// isOwner0(string,address)
+message RequestIsOwner0 {
+	string appName = 1;
+	string owner = 2;
+}
+
+// isOwner0(string,address)
+message ResponseIsOwner0 {
+	bool bool1 = 1;
+}
+
+// transferOwnership(address)
+message RequestTransferOwnership {
+	string newOwner = 1;
+}
+
+// unregister(string)
+message RequestUnregister {
+	string appName = 1;
+}
+
+// get(string)
+message RequestGet {
+	string appName = 1;
+}
+
+// get(string)
+message ResponseGet {
+	// struct { Name string "json:\"name\""; Owner common.Address "json:\"owner\""; HashedName [32]uint8 "json:\"hashedName\"" }
+	message XYX__tmpStruct1 {
+		string name = 1;
+		string owner = 2;
+		string hashedName = 3;
+	}
+	XYX__tmpStruct1 struct1 = 1;
+}
+
+// isOwner()
+message ResponseIsOwner {
+	bool bool1 = 1;
+}
+
+// transferAppOwner(string,address)
+message RequestTransferAppOwner {
+	string appName = 1;
+	string newOwner = 2;
+}
+
+// owner()
+message ResponseOwner {
+	string array1 = 1;
+}
+
+// register(string)
+message RequestRegister {
+	string appName = 1;
+}
+
+

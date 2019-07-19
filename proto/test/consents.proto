@@ -1,0 +1,72 @@
+
+// Auto Generated. DO NOT EDIT!
+syntax = "proto3";
+package airbloc.consents;
+
+import "google/protobuf/empty.proto";
+
+// Consents
+service Consents {
+	rpc consent(RequestConsent) returns (google.protobuf.Empty);
+	rpc consentByController(RequestConsentByController) returns (google.protobuf.Empty);
+	rpc modifyConsentByController(RequestModifyConsentByController) returns (google.protobuf.Empty);
+	rpc isAllowed(RequestIsAllowed) returns (ResponseIsAllowed);
+	rpc isAllowedAt(RequestIsAllowedAt) returns (ResponseIsAllowedAt);
+}
+
+
+// consent(uint8,string,string,bool)
+message RequestConsent {
+	uint32 action = 1;
+	string appName = 2;
+	string dataType = 3;
+	bool allowed = 4;
+}
+
+// consentByController(uint8,bytes8,string,string,bool)
+message RequestConsentByController {
+	uint32 action = 1;
+	string userId = 2;
+	string appName = 3;
+	string dataType = 4;
+	bool allowed = 5;
+}
+
+// modifyConsentByController(uint8,bytes8,string,string,bool,bytes)
+message RequestModifyConsentByController {
+	uint32 action = 1;
+	string userId = 2;
+	string appName = 3;
+	string dataType = 4;
+	bool allowed = 5;
+	string passwordSignature = 6;
+}
+
+// isAllowed(uint8,bytes8,string,string)
+message RequestIsAllowed {
+	uint32 action = 1;
+	string userId = 2;
+	string appName = 3;
+	string dataType = 4;
+}
+
+// isAllowed(uint8,bytes8,string,string)
+message ResponseIsAllowed {
+	bool bool1 = 1;
+}
+
+// isAllowedAt(uint8,bytes8,string,string,uint256)
+message RequestIsAllowedAt {
+	uint32 action = 1;
+	string userId = 2;
+	string appName = 3;
+	string dataType = 4;
+	string blockNumber = 5;
+}
+
+// isAllowedAt(uint8,bytes8,string,string,uint256)
+message ResponseIsAllowedAt {
+	bool bool1 = 1;
+}
+
+

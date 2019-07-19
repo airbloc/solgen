@@ -1,0 +1,110 @@
+
+// Auto Generated. DO NOT EDIT!
+syntax = "proto3";
+package airbloc.exchange;
+
+import "google/protobuf/empty.proto";
+
+// Exchange
+service Exchange {
+	rpc prepare(RequestPrepare) returns (ResponsePrepare);
+	rpc order(RequestOrder) returns (google.protobuf.Empty);
+	rpc settle(RequestSettle) returns (google.protobuf.Empty);
+	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
+	rpc addDataIds(RequestAddDataIds) returns (google.protobuf.Empty);
+	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
+	rpc reject(RequestReject) returns (google.protobuf.Empty);
+	rpc offerExists(RequestOfferExists) returns (ResponseOfferExists);
+	rpc getOffer(RequestGetOffer) returns (ResponseGetOffer);
+}
+
+
+// prepare(string,address,address,bytes4,bytes,bytes20[])
+message RequestPrepare {
+	string provider = 1;
+	string consumer = 2;
+	string escrow = 3;
+	string escrowSign = 4;
+	string escrowArgs = 5;
+	repeated string dataIds = 6;
+}
+
+// prepare(string,address,address,bytes4,bytes,bytes20[])
+message ResponsePrepare {
+	string array1 = 1;
+}
+
+// order(bytes8)
+message RequestOrder {
+	string offerId = 1;
+}
+
+// settle(bytes8)
+message RequestSettle {
+	string offerId = 1;
+}
+
+// getOfferMembers(bytes8)
+message RequestGetOfferMembers {
+	string offerId = 1;
+}
+
+// getOfferMembers(bytes8)
+message ResponseGetOfferMembers {
+	string array1 = 1;
+	string array2 = 2;
+}
+
+// addDataIds(bytes8,bytes20[])
+message RequestAddDataIds {
+	string offerId = 1;
+	repeated string dataIds = 2;
+}
+
+// cancel(bytes8)
+message RequestCancel {
+	string offerId = 1;
+}
+
+// reject(bytes8)
+message RequestReject {
+	string offerId = 1;
+}
+
+// offerExists(bytes8)
+message RequestOfferExists {
+	string offerId = 1;
+}
+
+// offerExists(bytes8)
+message ResponseOfferExists {
+	bool bool1 = 1;
+}
+
+// getOffer(bytes8)
+message RequestGetOffer {
+	string offerId = 1;
+}
+
+// getOffer(bytes8)
+message ResponseGetOffer {
+	// struct { Provider string "json:\"provider\""; Consumer common.Address "json:\"consumer\""; DataIds [][20]uint8 "json:\"dataIds\""; At *big.Int "json:\"at\""; Until *big.Int "json:\"until\""; Escrow struct { Addr common.Address "json:\"addr\""; Sign [4]uint8 "json:\"sign\""; Args []uint8 "json:\"args\"" } "json:\"escrow\""; Status uint8 "json:\"status\"" }
+	message XYX__tmpStruct1 {
+		// struct { Addr common.Address "json:\"addr\""; Sign [4]uint8 "json:\"sign\""; Args []uint8 "json:\"args\"" }
+		message XYX__tmpStruct6 {
+			string addr = 1;
+			string sign = 2;
+			string args = 3;
+		}
+		string provider = 1;
+		string consumer = 2;
+		repeated string dataIds = 3;
+		string at = 4;
+		string until = 5;
+		XYX__tmpStruct6 escrow = 6;
+		uint32 status = 7;
+	}
+	XYX__tmpStruct1 struct1 = 1;
+}
+
+

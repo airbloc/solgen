@@ -1,0 +1,65 @@
+
+// Auto Generated. DO NOT EDIT!
+syntax = "proto3";
+package airbloc.controllerRegistry;
+
+import "google/protobuf/empty.proto";
+
+// ControllerRegistry
+service ControllerRegistry {
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
+	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
+	rpc register(RequestRegister) returns (google.protobuf.Empty);
+	rpc get(RequestGet) returns (ResponseGet);
+	rpc exists(RequestExists) returns (ResponseExists);
+}
+
+
+// owner()
+message ResponseOwner {
+	string array1 = 1;
+}
+
+// isOwner()
+message ResponseIsOwner {
+	bool bool1 = 1;
+}
+
+// transferOwnership(address)
+message RequestTransferOwnership {
+	string newOwner = 1;
+}
+
+// register(address)
+message RequestRegister {
+	string controllerAddr = 1;
+}
+
+// get(address)
+message RequestGet {
+	string controller = 1;
+}
+
+// get(address)
+message ResponseGet {
+	// struct { Controller common.Address "json:\"controller\""; UsersCount *big.Int "json:\"usersCount\"" }
+	message XYX__tmpStruct1 {
+		string controller = 1;
+		string usersCount = 2;
+	}
+	XYX__tmpStruct1 struct1 = 1;
+}
+
+// exists(address)
+message RequestExists {
+	string controller = 1;
+}
+
+// exists(address)
+message ResponseExists {
+	bool bool1 = 1;
+}
+
+

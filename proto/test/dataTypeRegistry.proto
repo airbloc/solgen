@@ -1,0 +1,85 @@
+
+// Auto Generated. DO NOT EDIT!
+syntax = "proto3";
+package airbloc.dataTypeRegistry;
+
+import "google/protobuf/empty.proto";
+
+// DataTypeRegistry
+service DataTypeRegistry {
+	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc register(RequestRegister) returns (google.protobuf.Empty);
+	rpc exists(RequestExists) returns (ResponseExists);
+	rpc isOwner0(RequestIsOwner0) returns (ResponseIsOwner0);
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
+	rpc get(RequestGet) returns (ResponseGet);
+	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
+	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
+}
+
+
+// owner()
+message ResponseOwner {
+	string array1 = 1;
+}
+
+// register(string,bytes32)
+message RequestRegister {
+	string name = 1;
+	string schemaHash = 2;
+}
+
+// exists(string)
+message RequestExists {
+	string name = 1;
+}
+
+// exists(string)
+message ResponseExists {
+	bool bool1 = 1;
+}
+
+// isOwner0(string,address)
+message RequestIsOwner0 {
+	string name = 1;
+	string owner = 2;
+}
+
+// isOwner0(string,address)
+message ResponseIsOwner0 {
+	bool bool1 = 1;
+}
+
+// transferOwnership(address)
+message RequestTransferOwnership {
+	string newOwner = 1;
+}
+
+// get(string)
+message RequestGet {
+	string name = 1;
+}
+
+// get(string)
+message ResponseGet {
+	// struct { Name string "json:\"name\""; Owner common.Address "json:\"owner\""; SchemaHash [32]uint8 "json:\"schemaHash\"" }
+	message XYX__tmpStruct1 {
+		string name = 1;
+		string owner = 2;
+		string schemaHash = 3;
+	}
+	XYX__tmpStruct1 struct1 = 1;
+}
+
+// isOwner()
+message ResponseIsOwner {
+	bool bool1 = 1;
+}
+
+// unregister(string)
+message RequestUnregister {
+	string name = 1;
+}
+
+
