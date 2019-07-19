@@ -1,31 +1,71 @@
 package proto
 
-type rpc struct {
-	Name   string
-	Input  string
-	Output string
-}
+import (
+	"fmt"
 
-type service struct {
-	Name string
-	Rpcs []rpc
-}
+	"github.com/ethereum/go-ethereum/accounts/abi"
+)
 
-type arg struct {
-	Name     string
-	Repeated bool
-	Type     string
-	Count    int
-}
-
-type message struct {
-	Comment string
-	Name    string
-	Args    []arg
-}
-
-type contract struct {
+type Contract struct {
 	PackageName string
-	Services    []service
-	Messages    []message
+	Services    []Service
+	Messages    []Message
+}
+
+func parseContract(contractName string, contractAbi abi.ABI) Contract {
+	service := Service{
+		Comment: contractName,
+		Name:    contractName,
+		Methods: make([]method, len(contractAbi.Methods)),
+	}
+	var messages []Message
+
+	methodIndex := 0
+	for methodName, methodInfo := range contractAbi.Methods {
+		inputMessage := fmt.Sprintf("Request%s", toUpperCase(methodName, 0))
+		outputMessage := fmt.Sprintf("Response%s", toUpperCase(methodName, 0))
+
+		if len(methodInfo.Inputs) == 0 {
+			inputMessage = EmptyMessage
+		} else {
+			messages = append(messages, parseMessage(
+				inputMessage,
+				methodInfo.Sig(),
+				methodInfo.Inputs),
+			)
+		}
+
+		if len(methodInfo.Outputs) == 0 {
+			outputMessage = EmptyMessage
+		} else {
+			messages = append(messages, parseMessage(
+				outputMessage,
+				methodInfo.Sig(),
+				methodInfo.Outputs),
+			)
+		}
+
+		service.Methods[methodIndex] = method{
+			Name:   methodName,
+			Input:  inputMessage,
+			Output: outputMessage,
+		}
+
+		methodIndex += 1
+	}
+
+	return Contract{
+		PackageName: toLowerCase(contractName, 0),
+		Services:    []Service{service},
+		Messages:    messages,
+	}
+}
+
+func parseContracts(deployments Deployments) []Contract {
+	contracts, contractsIndex := make([]Contract, len(deployments)), 0
+	for name, deployment := range deployments {
+		contracts[contractsIndex] = parseContract(name, deployment)
+		contractsIndex += 1
+	}
+	return contracts
 }
