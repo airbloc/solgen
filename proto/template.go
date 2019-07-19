@@ -5,7 +5,7 @@ import (
 	"text/template"
 )
 
-func Render(c contract) error {
+func Render(path string, c Contract) error {
 	t := template.New("test")
 
 	t, err := t.Parse(tmpl)
@@ -13,9 +13,17 @@ func Render(c contract) error {
 		return err
 	}
 
-	out, err := os.OpenFile("test.proto", os.O_WRONLY, os.ModePerm)
-	if err != nil {
-		return err
+	var out *os.File
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		out, err = os.Create(path)
+		if err != nil {
+			return err
+		}
+	} else {
+		out, err = os.OpenFile(path, os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := t.Execute(out, c); err != nil {
@@ -25,20 +33,15 @@ func Render(c contract) error {
 	return nil
 }
 
-const tmpl = `// Auto Generated. DO NOT EDIT!
+const tmpl = `
+// Auto Generated. DO NOT EDIT!
 syntax = "proto3";
 package airbloc.{{.PackageName}};
 
 import "google/protobuf/empty.proto";
 
-{{range .Services}}service {{.Name}} {
-	{{range .Rpcs}}rpc {{.Name}}({{.Input}}) returns ({{.Output}});
-	{{end}}
-}{{end}}
-{{range .Messages}}// {{.Comment}}
-message {{.Name}} {
-	{{range .Args}}{{if .Repeated}}repeated{{end}} {{.Type}} {{.Name}} = {{.Count}};
-	{{end}}
-}
+{{range .Services}}{{.PrintService}}
+{{end}}
+{{range .Messages}}{{.PrintMessage}}
 {{end}}
 `
