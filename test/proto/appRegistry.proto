@@ -6,18 +6,33 @@ import "google/protobuf/empty.proto";
 
 // AppRegistry
 service AppRegistry {
+	rpc register(RequestRegister) returns (google.protobuf.Empty);
+	rpc exists(RequestExists) returns (ResponseExists);
 	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
 	rpc isOwner0(RequestIsOwner0) returns (ResponseIsOwner0);
-	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
 	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
-	rpc register(RequestRegister) returns (google.protobuf.Empty);
 	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
-	rpc exists(RequestExists) returns (ResponseExists);
 	rpc transferAppOwner(RequestTransferAppOwner) returns (google.protobuf.Empty);
-	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
+
+// register(string)
+message RequestRegister {
+	string appName = 1;
+}
+
+// exists(string)
+message RequestExists {
+	string appName = 1;
+}
+
+// exists(string)
+message ResponseExists {
+	bool bool1 = 1;
+}
 
 // isOwner()
 message ResponseIsOwner {
@@ -35,14 +50,14 @@ message ResponseIsOwner0 {
 	bool bool1 = 1;
 }
 
+// owner()
+message ResponseOwner {
+	string array1 = 1;
+}
+
 // transferOwnership(address)
 message RequestTransferOwnership {
 	string newOwner = 1;
-}
-
-// register(string)
-message RequestRegister {
-	string appName = 1;
 }
 
 // unregister(string)
@@ -66,25 +81,10 @@ message ResponseGet {
 	XYX__tmpStruct1 struct1 = 1;
 }
 
-// exists(string)
-message RequestExists {
-	string appName = 1;
-}
-
-// exists(string)
-message ResponseExists {
-	bool bool1 = 1;
-}
-
 // transferAppOwner(string,address)
 message RequestTransferAppOwner {
 	string appName = 1;
 	string newOwner = 2;
-}
-
-// owner()
-message ResponseOwner {
-	string array1 = 1;
 }
 
 

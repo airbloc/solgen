@@ -2,9 +2,8 @@ package main
 
 import (
 	"github.com/frostornge/solgen/bind"
-	"github.com/frostornge/solgen/proto"
-
 	"github.com/frostornge/solgen/deployments"
+	"github.com/frostornge/solgen/proto"
 )
 
 func main() {
