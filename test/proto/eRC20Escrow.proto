@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.eRC20Escrow;
 

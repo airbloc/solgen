@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.controllerRegistry;
 
@@ -7,13 +6,13 @@ import "google/protobuf/empty.proto";
 
 // ControllerRegistry
 service ControllerRegistry {
+	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
 	rpc owner(google.protobuf.Empty) returns (ResponseOwner);
 	rpc isOwner(google.protobuf.Empty) returns (ResponseIsOwner);
 	rpc transferOwnership(RequestTransferOwnership) returns (google.protobuf.Empty);
 	rpc register(RequestRegister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
 	rpc exists(RequestExists) returns (ResponseExists);
-	rpc renounceOwnership(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 
@@ -44,7 +43,7 @@ message RequestGet {
 
 // get(address)
 message ResponseGet {
-	// struct { Controller common.Address "json:\"controller\""; UsersCount *big.Int "json:\"usersCount\"" }
+	// struct { Controller common.Address &#34;json:\&#34;controller\&#34;&#34;; UsersCount *big.Int &#34;json:\&#34;usersCount\&#34;&#34; }
 	message XYX__tmpStruct1 {
 		string controller = 1;
 		string usersCount = 2;

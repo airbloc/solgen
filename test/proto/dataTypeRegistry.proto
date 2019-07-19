@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.dataTypeRegistry;
 
@@ -7,13 +6,18 @@ import "google/protobuf/empty.proto";
 
 // DataTypeRegistry
 service DataTypeRegistry {
+	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
 	rpc register(RequestRegister) returns (google.protobuf.Empty);
 	rpc get(RequestGet) returns (ResponseGet);
 	rpc exists(RequestExists) returns (ResponseExists);
 	rpc isOwner(RequestIsOwner) returns (ResponseIsOwner);
-	rpc unregister(RequestUnregister) returns (google.protobuf.Empty);
 }
 
+
+// unregister(string)
+message RequestUnregister {
+	string name = 1;
+}
 
 // register(string,bytes32)
 message RequestRegister {
@@ -28,7 +32,7 @@ message RequestGet {
 
 // get(string)
 message ResponseGet {
-	// struct { Name string "json:\"name\""; Owner common.Address "json:\"owner\""; SchemaHash [32]uint8 "json:\"schemaHash\"" }
+	// struct { Name string &#34;json:\&#34;name\&#34;&#34;; Owner common.Address &#34;json:\&#34;owner\&#34;&#34;; SchemaHash [32]uint8 &#34;json:\&#34;schemaHash\&#34;&#34; }
 	message XYX__tmpStruct1 {
 		string name = 1;
 		string owner = 2;
@@ -56,11 +60,6 @@ message RequestIsOwner {
 // isOwner(string,address)
 message ResponseIsOwner {
 	bool bool1 = 1;
-}
-
-// unregister(string)
-message RequestUnregister {
-	string name = 1;
 }
 
 

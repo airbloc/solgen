@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.simpleToken;
 
@@ -8,35 +7,23 @@ import "google/protobuf/empty.proto";
 // SimpleToken
 service SimpleToken {
 	rpc totalSupply(google.protobuf.Empty) returns (ResponseTotalSupply);
-	rpc transferFrom(RequestTransferFrom) returns (ResponseTransferFrom);
 	rpc increaseAllowance(RequestIncreaseAllowance) returns (ResponseIncreaseAllowance);
 	rpc mint(RequestMint) returns (ResponseMint);
-	rpc renounceMinter(google.protobuf.Empty) returns (google.protobuf.Empty);
-	rpc decreaseAllowance(RequestDecreaseAllowance) returns (ResponseDecreaseAllowance);
+	rpc addMinter(RequestAddMinter) returns (google.protobuf.Empty);
 	rpc transfer(RequestTransfer) returns (ResponseTransfer);
 	rpc isMinter(RequestIsMinter) returns (ResponseIsMinter);
-	rpc approve(RequestApprove) returns (ResponseApprove);
-	rpc balanceOf(RequestBalanceOf) returns (ResponseBalanceOf);
-	rpc addMinter(RequestAddMinter) returns (google.protobuf.Empty);
 	rpc allowance(RequestAllowance) returns (ResponseAllowance);
+	rpc approve(RequestApprove) returns (ResponseApprove);
+	rpc transferFrom(RequestTransferFrom) returns (ResponseTransferFrom);
+	rpc balanceOf(RequestBalanceOf) returns (ResponseBalanceOf);
+	rpc renounceMinter(google.protobuf.Empty) returns (google.protobuf.Empty);
+	rpc decreaseAllowance(RequestDecreaseAllowance) returns (ResponseDecreaseAllowance);
 }
 
 
 // totalSupply()
 message ResponseTotalSupply {
 	string ptr1 = 1;
-}
-
-// transferFrom(address,address,uint256)
-message RequestTransferFrom {
-	string sender = 1;
-	string recipient = 2;
-	string amount = 3;
-}
-
-// transferFrom(address,address,uint256)
-message ResponseTransferFrom {
-	bool bool1 = 1;
 }
 
 // increaseAllowance(address,uint256)
@@ -61,15 +48,9 @@ message ResponseMint {
 	bool bool1 = 1;
 }
 
-// decreaseAllowance(address,uint256)
-message RequestDecreaseAllowance {
-	string spender = 1;
-	string subtractedValue = 2;
-}
-
-// decreaseAllowance(address,uint256)
-message ResponseDecreaseAllowance {
-	bool bool1 = 1;
+// addMinter(address)
+message RequestAddMinter {
+	string account = 1;
 }
 
 // transfer(address,uint256)
@@ -93,6 +74,17 @@ message ResponseIsMinter {
 	bool bool1 = 1;
 }
 
+// allowance(address,address)
+message RequestAllowance {
+	string owner = 1;
+	string spender = 2;
+}
+
+// allowance(address,address)
+message ResponseAllowance {
+	string ptr1 = 1;
+}
+
 // approve(address,uint256)
 message RequestApprove {
 	string spender = 1;
@@ -101,6 +93,18 @@ message RequestApprove {
 
 // approve(address,uint256)
 message ResponseApprove {
+	bool bool1 = 1;
+}
+
+// transferFrom(address,address,uint256)
+message RequestTransferFrom {
+	string sender = 1;
+	string recipient = 2;
+	string amount = 3;
+}
+
+// transferFrom(address,address,uint256)
+message ResponseTransferFrom {
 	bool bool1 = 1;
 }
 
@@ -114,20 +118,15 @@ message ResponseBalanceOf {
 	string ptr1 = 1;
 }
 
-// addMinter(address)
-message RequestAddMinter {
-	string account = 1;
+// decreaseAllowance(address,uint256)
+message RequestDecreaseAllowance {
+	string spender = 1;
+	string subtractedValue = 2;
 }
 
-// allowance(address,address)
-message RequestAllowance {
-	string owner = 1;
-	string spender = 2;
-}
-
-// allowance(address,address)
-message ResponseAllowance {
-	string ptr1 = 1;
+// decreaseAllowance(address,uint256)
+message ResponseDecreaseAllowance {
+	bool bool1 = 1;
 }
 
 

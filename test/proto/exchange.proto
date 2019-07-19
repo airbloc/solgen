@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.exchange;
 
@@ -7,17 +6,43 @@ import "google/protobuf/empty.proto";
 
 // Exchange
 service Exchange {
+	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
+	rpc order(RequestOrder) returns (google.protobuf.Empty);
+	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
+	rpc settle(RequestSettle) returns (google.protobuf.Empty);
 	rpc reject(RequestReject) returns (google.protobuf.Empty);
 	rpc prepare(RequestPrepare) returns (ResponsePrepare);
 	rpc addDataIds(RequestAddDataIds) returns (google.protobuf.Empty);
-	rpc cancel(RequestCancel) returns (google.protobuf.Empty);
-	rpc settle(RequestSettle) returns (google.protobuf.Empty);
-	rpc order(RequestOrder) returns (google.protobuf.Empty);
 	rpc offerExists(RequestOfferExists) returns (ResponseOfferExists);
 	rpc getOffer(RequestGetOffer) returns (ResponseGetOffer);
-	rpc getOfferMembers(RequestGetOfferMembers) returns (ResponseGetOfferMembers);
 }
 
+
+// getOfferMembers(bytes8)
+message RequestGetOfferMembers {
+	string offerId = 1;
+}
+
+// getOfferMembers(bytes8)
+message ResponseGetOfferMembers {
+	string array1 = 1;
+	string array2 = 2;
+}
+
+// order(bytes8)
+message RequestOrder {
+	string offerId = 1;
+}
+
+// cancel(bytes8)
+message RequestCancel {
+	string offerId = 1;
+}
+
+// settle(bytes8)
+message RequestSettle {
+	string offerId = 1;
+}
 
 // reject(bytes8)
 message RequestReject {
@@ -45,21 +70,6 @@ message RequestAddDataIds {
 	repeated string dataIds = 2;
 }
 
-// cancel(bytes8)
-message RequestCancel {
-	string offerId = 1;
-}
-
-// settle(bytes8)
-message RequestSettle {
-	string offerId = 1;
-}
-
-// order(bytes8)
-message RequestOrder {
-	string offerId = 1;
-}
-
 // offerExists(bytes8)
 message RequestOfferExists {
 	string offerId = 1;
@@ -77,9 +87,9 @@ message RequestGetOffer {
 
 // getOffer(bytes8)
 message ResponseGetOffer {
-	// struct { Provider string "json:\"provider\""; Consumer common.Address "json:\"consumer\""; DataIds [][20]uint8 "json:\"dataIds\""; At *big.Int "json:\"at\""; Until *big.Int "json:\"until\""; Escrow struct { Addr common.Address "json:\"addr\""; Sign [4]uint8 "json:\"sign\""; Args []uint8 "json:\"args\"" } "json:\"escrow\""; Status uint8 "json:\"status\"" }
+	// struct { Provider string &#34;json:\&#34;provider\&#34;&#34;; Consumer common.Address &#34;json:\&#34;consumer\&#34;&#34;; DataIds [][20]uint8 &#34;json:\&#34;dataIds\&#34;&#34;; At *big.Int &#34;json:\&#34;at\&#34;&#34;; Until *big.Int &#34;json:\&#34;until\&#34;&#34;; Escrow struct { Addr common.Address &#34;json:\&#34;addr\&#34;&#34;; Sign [4]uint8 &#34;json:\&#34;sign\&#34;&#34;; Args []uint8 &#34;json:\&#34;args\&#34;&#34; } &#34;json:\&#34;escrow\&#34;&#34;; Status uint8 &#34;json:\&#34;status\&#34;&#34; }
 	message XYX__tmpStruct1 {
-		// struct { Addr common.Address "json:\"addr\""; Sign [4]uint8 "json:\"sign\""; Args []uint8 "json:\"args\"" }
+		// struct { Addr common.Address &#34;json:\&#34;addr\&#34;&#34;; Sign [4]uint8 &#34;json:\&#34;sign\&#34;&#34;; Args []uint8 &#34;json:\&#34;args\&#34;&#34; }
 		message XYX__tmpStruct6 {
 			string addr = 1;
 			string sign = 2;
@@ -94,17 +104,6 @@ message ResponseGetOffer {
 		uint32 status = 7;
 	}
 	XYX__tmpStruct1 struct1 = 1;
-}
-
-// getOfferMembers(bytes8)
-message RequestGetOfferMembers {
-	string offerId = 1;
-}
-
-// getOfferMembers(bytes8)
-message ResponseGetOfferMembers {
-	string array1 = 1;
-	string array2 = 2;
 }
 
 

@@ -1,5 +1,4 @@
-
-// Auto Generated. Feel free to EDIT!
+// Auto Generated. But feel free to EDIT!
 syntax = "proto3";
 package airbloc.accounts;
 
@@ -7,42 +6,45 @@ import "google/protobuf/empty.proto";
 
 // Accounts
 service Accounts {
-	rpc setController(RequestSetController) returns (google.protobuf.Empty);
-	rpc getAccount(RequestGetAccount) returns (ResponseGetAccount);
+	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
+	rpc accounts(RequestAccounts) returns (ResponseAccounts);
+	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
 	rpc getAccountId(RequestGetAccountId) returns (ResponseGetAccountId);
 	rpc isControllerOf(RequestIsControllerOf) returns (ResponseIsControllerOf);
 	rpc exists(RequestExists) returns (ResponseExists);
 	rpc identityHashToAccount(RequestIdentityHashToAccount) returns (ResponseIdentityHashToAccount);
-	rpc unlockTemporary(RequestUnlockTemporary) returns (google.protobuf.Empty);
 	rpc create(google.protobuf.Empty) returns (google.protobuf.Empty);
 	rpc createTemporary(RequestCreateTemporary) returns (google.protobuf.Empty);
+	rpc setController(RequestSetController) returns (google.protobuf.Empty);
+	rpc getAccount(RequestGetAccount) returns (ResponseGetAccount);
 	rpc getAccountIdFromSignature(RequestGetAccountIdFromSignature) returns (ResponseGetAccountIdFromSignature);
 	rpc isTemporary(RequestIsTemporary) returns (ResponseIsTemporary);
-	rpc numberOfAccounts(google.protobuf.Empty) returns (ResponseNumberOfAccounts);
-	rpc accounts(RequestAccounts) returns (ResponseAccounts);
 }
 
 
-// setController(address)
-message RequestSetController {
-	string controller = 1;
+// numberOfAccounts()
+message ResponseNumberOfAccounts {
+	string ptr1 = 1;
 }
 
-// getAccount(bytes8)
-message RequestGetAccount {
-	string accountId = 1;
+// accounts(bytes8)
+message RequestAccounts {
+	string array1 = 1;
 }
 
-// getAccount(bytes8)
-message ResponseGetAccount {
-	// struct { Owner common.Address "json:\"owner\""; Status uint8 "json:\"status\""; Controller common.Address "json:\"controller\""; PasswordProof common.Address "json:\"passwordProof\"" }
-	message XYX__tmpStruct1 {
-		string owner = 1;
-		uint32 status = 2;
-		string controller = 3;
-		string passwordProof = 4;
-	}
-	XYX__tmpStruct1 struct1 = 1;
+// accounts(bytes8)
+message ResponseAccounts {
+	string owner = 1;
+	uint32 status = 2;
+	string controller = 3;
+	string passwordProof = 4;
+}
+
+// unlockTemporary(bytes32,address,bytes)
+message RequestUnlockTemporary {
+	string identityPreimage = 1;
+	string newOwner = 2;
+	string passwordSignature = 3;
 }
 
 // getAccountId(address)
@@ -86,16 +88,31 @@ message ResponseIdentityHashToAccount {
 	string array1 = 1;
 }
 
-// unlockTemporary(bytes32,address,bytes)
-message RequestUnlockTemporary {
-	string identityPreimage = 1;
-	string newOwner = 2;
-	string passwordSignature = 3;
-}
-
 // createTemporary(bytes32)
 message RequestCreateTemporary {
 	string identityHash = 1;
+}
+
+// setController(address)
+message RequestSetController {
+	string controller = 1;
+}
+
+// getAccount(bytes8)
+message RequestGetAccount {
+	string accountId = 1;
+}
+
+// getAccount(bytes8)
+message ResponseGetAccount {
+	// struct { Owner common.Address &#34;json:\&#34;owner\&#34;&#34;; Status uint8 &#34;json:\&#34;status\&#34;&#34;; Controller common.Address &#34;json:\&#34;controller\&#34;&#34;; PasswordProof common.Address &#34;json:\&#34;passwordProof\&#34;&#34; }
+	message XYX__tmpStruct1 {
+		string owner = 1;
+		uint32 status = 2;
+		string controller = 3;
+		string passwordProof = 4;
+	}
+	XYX__tmpStruct1 struct1 = 1;
 }
 
 // getAccountIdFromSignature(bytes32,bytes)
@@ -117,24 +134,6 @@ message RequestIsTemporary {
 // isTemporary(bytes8)
 message ResponseIsTemporary {
 	bool bool1 = 1;
-}
-
-// numberOfAccounts()
-message ResponseNumberOfAccounts {
-	string ptr1 = 1;
-}
-
-// accounts(bytes8)
-message RequestAccounts {
-	string array1 = 1;
-}
-
-// accounts(bytes8)
-message ResponseAccounts {
-	string owner = 1;
-	uint32 status = 2;
-	string controller = 3;
-	string passwordProof = 4;
 }
 
 
