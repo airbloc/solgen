@@ -1,0 +1,10 @@
+{{define "Bind"}}
+// Auto Generated. But feel free to EDIT!
+syntax = "proto3";
+package airbloc.{{.PackageName}};
+
+import "google/protobuf/empty.proto";
+
+{{template "Service" .}}
+{{template "Message" .}}
+{{end}}
