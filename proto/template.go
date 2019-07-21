@@ -1,18 +1,31 @@
 package proto
 
 import (
+	"bytes"
 	"html/template"
+	"io"
 	"os"
 )
 
-func render(path string, c Contract) error {
-	t := template.New("test")
+const templatePath = "./proto/templates/*"
 
-	t, err := t.Parse(tmpl)
-	if err != nil {
+func render(writer io.Writer, c Contract) error {
+	tmpl := template.Must(template.New("Bind").ParseGlob(templatePath))
+	if err := tmpl.Execute(writer, c); err != nil {
 		return err
 	}
+	return nil
+}
 
+func Render(c Contract) ([]byte, error) {
+	buffer := new(bytes.Buffer)
+	if err := render(buffer, c); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
+}
+
+func RenderFile(path string, c Contract) error {
 	var out *os.File
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		out, err = os.Create(path)
@@ -25,22 +38,5 @@ func render(path string, c Contract) error {
 			return err
 		}
 	}
-
-	if err := t.Execute(out, c); err != nil {
-		return err
-	}
-
-	return nil
+	return render(out, c)
 }
-
-const tmpl = `// Auto Generated. But feel free to EDIT!
-syntax = "proto3";
-package airbloc.{{.PackageName}};
-
-import "google/protobuf/empty.proto";
-
-{{range .Services}}{{.PrintService}}
-{{end}}
-{{range .Messages}}{{.PrintMessage}}
-{{end}}
-`
