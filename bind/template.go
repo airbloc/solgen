@@ -16,7 +16,16 @@
 
 package bind
 
-import "github.com/ethereum/go-ethereum/accounts/abi"
+import (
+	"bytes"
+	"fmt"
+	"go/format"
+	"io"
+	"os"
+	"text/template"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
+)
 
 type tmplMethod struct {
 	Original   abi.Method
@@ -42,4 +51,51 @@ type tmplContract struct {
 type tmplData struct {
 	Package   string                   // Name of the package to place the generated file in
 	Contracts map[string]*tmplContract // List of contracts to generate into this file
+}
+
+const templatePath = "./bind/templates/*"
+
+func render(writer io.Writer, data *tmplData) error {
+	funcs := map[string]interface{}{
+		"bindtype":      bindType,
+		"bindtopictype": bindTopicType,
+		"capitalise":    capitalise,
+		"decapitalise":  decapitalise,
+	}
+
+	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(templatePath))
+	if err := tmpl.Execute(writer, data); err != nil {
+		return err
+	}
+	return nil
+}
+
+func Render(data *tmplData) ([]byte, error) {
+	buffer := new(bytes.Buffer)
+	if err := render(buffer, data); err != nil {
+		return nil, err
+	}
+
+	// For Go bindings pass the code through gofmt to clean it up
+	code, err := format.Source(buffer.Bytes())
+	if err != nil {
+		return []byte{}, fmt.Errorf("%v\n%s", err, buffer)
+	}
+	return code, nil
+}
+
+func RenderFile(path string, data *tmplData) error {
+	var out *os.File
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		out, err = os.Create(path)
+		if err != nil {
+			return err
+		}
+	} else {
+		out, err = os.OpenFile(path, os.O_WRONLY, os.ModePerm)
+		if err != nil {
+			return err
+		}
+	}
+	return render(out, data)
 }
