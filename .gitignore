@@ -2,6 +2,8 @@
 # Edit at https://www.gitignore.io/?templates=go,code,macos,windows
 
 .idea
+test/proto
+test/bind
 
 ### Code ###
 .vscode/*
