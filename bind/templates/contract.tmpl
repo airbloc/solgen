@@ -149,11 +149,11 @@
 {{end}}
 
 {{define "Contracts"}}
-{{range $contract := .Contracts}}
-    {{template "ContractPrimitives" $contract}}
-    {{template "ContractCaller" $contract}}
-    {{template "ContractTransactor" $contract}}
-    {{template "ContractFilterer" $contract}}
+{{range .Contracts}}
+    {{template "ContractPrimitives" .}}
+    {{template "ContractCaller" .}}
+    {{template "ContractTransactor" .}}
+    {{template "ContractFilterer" .}}
 
     // convenient hacks for blockchain.Client
     func init() {
@@ -175,8 +175,8 @@
         return New{{.Type}}(address, backend)
     }
 
-    {{template "MethodCalls" $contract}}
-    {{template "MethodTransacts" $contract}}
-    {{template "Events" $contract}}
+    {{template "MethodCalls" .}}
+    {{template "MethodTransacts" .}}
+    {{template "Events" .}}
 {{end}}
 {{end}}
