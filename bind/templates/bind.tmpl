@@ -1,0 +1,34 @@
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
+
+package {{.Package}}
+
+import (
+    "github.com/pkg/errors"
+    "math/big"
+    "strings"
+
+    "github.com/airbloc/airbloc-go/shared/blockchain"
+    "github.com/airbloc/airbloc-go/shared/blockchain/bind"
+    ethereum "github.com/ethereum/go-ethereum"
+    "github.com/ethereum/go-ethereum/accounts/abi"
+    "github.com/airbloc/airbloc-go/shared/types"
+    "github.com/ethereum/go-ethereum/common"
+    ethTypes "github.com/ethereum/go-ethereum/core/types"
+    "github.com/ethereum/go-ethereum/event"
+)
+
+// Reference imports to suppress errors if they are not otherwise used.
+var (
+    _ = errors.New
+    _ = big.NewInt
+    _ = strings.NewReader
+    _ = ethereum.NotFound
+    _ = abi.U256
+    _ = bind.NewKeyedTransactor
+    _ = types.HexToID
+    _ = common.Big1
+    _ = ethTypes.BloomLookup
+    _ = event.NewSubscription
+)
+{{template "Contracts"}}
