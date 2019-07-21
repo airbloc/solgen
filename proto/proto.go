@@ -24,10 +24,9 @@ func GenerateBind(path string, deployments deployments.Deployments) error {
 
 	for _, contract := range contracts {
 		file := filepath.Join(path, contract.PackageName+".proto")
-		if err := render(file, contract); err != nil {
+		if err := RenderFile(file, contract); err != nil {
 			return err
 		}
 	}
-
 	return nil
 }
