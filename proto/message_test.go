@@ -1,8 +1,9 @@
 package proto
 
 import (
-	"log"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMessage_PrintMessage(t *testing.T) {
@@ -13,32 +14,6 @@ func TestMessage_PrintMessage(t *testing.T) {
 			{
 				Comment: "test struct",
 				Name:    "struct",
-				Msgs: []Message{
-					{
-						Comment: "test struct in struct",
-						Name:    "struct in struct",
-						Args: []argument{
-							{
-								Name:     "structArg1",
-								Repeated: true,
-								Type:     "string",
-								Count:    1,
-							},
-							{
-								Name:     "structArg2",
-								Repeated: false,
-								Type:     "uint32",
-								Count:    2,
-							},
-							{
-								Name:     "structArg3",
-								Repeated: false,
-								Type:     "string",
-								Count:    3,
-							},
-						},
-					},
-				},
 				Args: []argument{
 					{
 						Name:     "structArg1",
@@ -46,42 +21,24 @@ func TestMessage_PrintMessage(t *testing.T) {
 						Type:     "string",
 						Count:    1,
 					},
-					{
-						Name:     "structArg2",
-						Repeated: false,
-						Type:     "uint32",
-						Count:    2,
-					},
-					{
-						Name:     "structArg3",
-						Repeated: false,
-						Type:     "string",
-						Count:    3,
-					},
 				},
 			},
 		},
 		Args: []argument{
 			{
-				Name:     "messageArg1",
-				Repeated: true,
-				Type:     "struct",
-				Count:    1,
-			},
-			{
-				Name:     "messageArg2",
-				Repeated: false,
-				Type:     "string",
-				Count:    2,
-			},
-			{
 				Name:     "messageArg3",
 				Repeated: true,
 				Type:     "uint64",
-				Count:    3,
+				Count:    1,
 			},
 		},
 	}
 
-	log.Println(msg.PrintMessage())
+	expected := "// frostornge\n" +
+		"message airbloc {\n\t" +
+		"// test struct\n\t" +
+		"message struct {\n\t\t" +
+		"repeated string structArg1 = 1;\n\t}\n\t" +
+		"repeated uint64 messageArg3 = 1;\n}\n"
+	assert.Equal(t, expected, msg.PrintMessage())
 }
