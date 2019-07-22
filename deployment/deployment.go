@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
@@ -16,11 +17,7 @@ func parseDeployments(rawData rawData) (Deployments, error) {
 	deployments := make(Deployments, len(rawData))
 
 	for contractName, contractInfo := range rawData {
-		rawAbi, err := json.Marshal(contractInfo["abi"])
-		if err != nil {
-			return nil, err
-		}
-
+		rawAbi, _ := json.Marshal(contractInfo["abi"])
 		parsedAbi, err := abi.JSON(bytes.NewReader(rawAbi))
 		if err != nil {
 			return nil, err
@@ -32,7 +29,23 @@ func parseDeployments(rawData rawData) (Deployments, error) {
 	return deployments, nil
 }
 
-func GetDeploymentsFromFile(path string) (Deployments, error) {
+func fetchFromUrl(path string) (Deployments, error) {
+	resp, err := http.Get(path)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	rawData := make(rawData)
+	decoder := json.NewDecoder(resp.Body)
+	if err := decoder.Decode(&rawData); err != nil {
+		return nil, err
+	}
+
+	return parseDeployments(rawData)
+}
+
+func fetchFromFile(path string) (Deployments, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -46,17 +59,9 @@ func GetDeploymentsFromFile(path string) (Deployments, error) {
 	return parseDeployments(rawData)
 }
 
-func GetDeploymentsFromUrl(url string) (Deployments, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
+func GetDeploymentsFrom(path string) (Deployments, error) {
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		return fetchFromUrl(path)
 	}
-	defer resp.Body.Close()
-
-	rawData := make(rawData)
-	if err := json.NewDecoder(resp.Body).Decode(&rawData); err != nil {
-		return nil, err
-	}
-
-	return parseDeployments(rawData)
+	return fetchFromFile(path)
 }
