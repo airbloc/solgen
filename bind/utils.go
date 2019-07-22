@@ -1,12 +1,32 @@
 package bind
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
+
+func stripABI(evmABI abi.ABI) (string, error) {
+	abiByte, err := json.Marshal(evmABI)
+	if err != nil {
+		return "", nil
+	}
+	abistr := string(abiByte)
+
+	// Strip any whitespace from the JSON ABI
+	strippedABI := strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return -1
+		}
+		return r
+	}, abistr)
+
+	return strings.Replace(strippedABI, "\"", "\\\"", -1), nil
+}
 
 // Helper function for the binding generators.
 // It reads the unmatched characters after the inner type-match,
@@ -40,13 +60,30 @@ func arrayBinding(inner string, arraySizes []string) string {
 	return out
 }
 
+func bindSimpleType(strKind string) string {
+	innerLen, innerMapping := bindUnnestedType(strKind)
+	return arrayBinding(wrapArray(strKind, innerLen, innerMapping))
+}
+
 // bindTypeGo converts a Solidity type to a Go one. Since there is no clear mapping
 // from all Solidity types to Go ones (e.g. uint17), those that cannot be exactly
 // mapped will use an upscaled type (e.g. *big.Int).
 func bindType(kind abi.Type) string {
-	stringKind := kind.String()
-	innerLen, innerMapping := bindUnnestedType(stringKind)
-	return arrayBinding(wrapArray(stringKind, innerLen, innerMapping))
+	if kind.T == abi.TupleTy {
+		var builder strings.Builder
+
+		builder.WriteString("struct{\n")
+		for index := range kind.TupleElems {
+			tupleName := capitalise(kind.TupleRawNames[index])
+			tupleElem := bindType(*kind.TupleElems[index])
+
+			builder.WriteString(fmt.Sprintln(tupleName, tupleElem))
+		}
+		builder.WriteString("}")
+		return builder.String()
+	} else {
+		return bindSimpleType(kind.String())
+	}
 }
 
 // The inner function of bindTypeGo, this finds the inner type of stringKind.

@@ -21,42 +21,41 @@ import (
 	"fmt"
 	"go/format"
 	"io"
+	"log"
 	"os"
+	"reflect"
 	"text/template"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-type tmplMethod struct {
-	Original   abi.Method
-	Normalized abi.Method
-	Structured bool
-}
-
-type tmplEvent struct {
-	Original   abi.Event
-	Normalized abi.Event
-}
-
-type tmplContract struct {
-	Type        string
-	InputABI    string
-	Constructor abi.Method
-	Calls       map[string]*tmplMethod
-	Transacts   map[string]*tmplMethod
-	Events      map[string]*tmplEvent
-}
-
 // tmplData is the data structure required to fill the binding template.
 type tmplData struct {
-	Package   string                   // Name of the package to place the generated file in
-	Contracts map[string]*tmplContract // List of contracts to generate into this file
+	Package   string               // Name of the package to place the generated file in
+	Contracts map[string]*contract // List of contracts to generate into this file
+}
+
+func parseData(name string, evmABI abi.ABI, pkg string) *tmplData {
+	log.SetFlags(log.Llongfile)
+
+	// Process each individual tmplContract requested binding
+	contracts := make(map[string]*contract)
+	contracts[name] = parseContract(name, evmABI)
+
+	// Generate the tmplContract template data content and render it
+	return &tmplData{
+		Package:   pkg,
+		Contracts: contracts,
+	}
 }
 
 const templatePath = "./bind/templates/*"
 
 func render(writer io.Writer, data *tmplData) error {
-	funcs := map[string]interface{}{
+	funcs := template.FuncMap{
+		"last": func(x int, a interface{}) bool {
+			return x == reflect.ValueOf(a).Len()-1
+		},
 		"bindtype":      bindType,
 		"bindtopictype": bindTopicType,
 		"capitalise":    capitalise,
@@ -64,7 +63,7 @@ func render(writer io.Writer, data *tmplData) error {
 	}
 
 	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(templatePath))
-	if err := tmpl.Execute(writer, data); err != nil {
+	if err := tmpl.ExecuteTemplate(writer, "Bind", data); err != nil {
 		return err
 	}
 	return nil
@@ -97,5 +96,14 @@ func RenderFile(path string, data *tmplData) error {
 			return err
 		}
 	}
-	return render(out, data)
+
+	if data, err := Render(data); err != nil {
+		return err
+	} else {
+		if _, err = out.Write(data); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
