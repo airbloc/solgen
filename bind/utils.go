@@ -178,6 +178,9 @@ func toCamelCase(input string) string {
 // operate through a proper Go struct or if flat returns are needed.
 func structured(args abi.Arguments) bool {
 	if len(args) < 2 {
+		if len(args) > 0 {
+			return args[0].Type.T == abi.TupleTy
+		}
 		return false
 	}
 	exists := make(map[string]bool)
