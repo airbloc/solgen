@@ -1,5 +1,4 @@
-{{define "Events"}}
-{{$contract := .}}
+{{define "Events"}}{{$contract := .}}
 {{range .Events}}
     // {{$contract.Type}}{{.Normalized.Name}}Iterator is returned from Filter{{.Normalized.Name}} and is used to iterate over the raw logs and unpacked data for {{.Normalized.Name}} events raised by the {{$contract.Type}} contract.
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {
