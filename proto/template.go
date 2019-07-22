@@ -11,7 +11,7 @@ const templatePath = "./proto/templates/*"
 
 func render(writer io.Writer, c Contract) error {
 	tmpl := template.Must(template.New("Bind").ParseGlob(templatePath))
-	if err := tmpl.Execute(writer, c); err != nil {
+	if err := tmpl.ExecuteTemplate(writer, "Bind", c); err != nil {
 		return err
 	}
 	return nil
