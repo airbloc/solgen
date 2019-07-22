@@ -3,9 +3,8 @@ package proto
 import (
 	"fmt"
 
-	"github.com/frostornge/solgen/deployments"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/frostornge/solgen/deployment"
 )
 
 type Contract struct {
@@ -63,7 +62,7 @@ func parseContract(contractName string, contractAbi abi.ABI) Contract {
 	}
 }
 
-func parseContracts(deployments deployments.Deployments) []Contract {
+func parseContracts(deployments deployment.Deployments) []Contract {
 	contracts, contractsIndex := make([]Contract, len(deployments)), 0
 	for name, deployment := range deployments {
 		contracts[contractsIndex] = parseContract(name, deployment)

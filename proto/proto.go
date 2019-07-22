@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/frostornge/solgen/deployments"
+	"github.com/frostornge/solgen/deployment"
 )
 
-func GenerateBind(path string, deployments deployments.Deployments) error {
+func GenerateBind(path string, deployments deployment.Deployments) error {
 	stat, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(path, os.ModePerm); err != nil {
