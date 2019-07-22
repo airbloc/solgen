@@ -2,6 +2,7 @@ package bind
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -77,12 +78,34 @@ func parseMethods(evmMethods map[string]abi.Method) (methods, methods) {
 			}
 		}
 
-		normalized.Outputs = make([]abi.Argument, len(original.Outputs))
-		copy(normalized.Outputs, original.Outputs)
-		for j, output := range normalized.Outputs {
-			if output.Name != "" {
-				normalized.Outputs[j].Name = capitalise(output.Name)
+		if len(original.Outputs) < 2 {
+			normalized.Outputs = make([]abi.Argument, len(original.Outputs))
+			copy(normalized.Outputs, original.Outputs)
+			for j, output := range normalized.Outputs {
+				if output.Name != "" {
+					normalized.Outputs[j].Name = capitalise(output.Name)
+				}
 			}
+		} else {
+			normalized.Outputs = []abi.Argument{}
+
+			var args []abi.ArgumentMarshaling
+			for _, output := range original.Outputs {
+				if output.Name != "" {
+					args = append(args, abi.ArgumentMarshaling{
+						Type: output.Type.String(),
+						Name: capitalise(output.Name),
+					})
+				}
+			}
+
+			outputType, err := abi.NewType("tuple", args)
+			if err != nil {
+				log.Println(err)
+				return nil, nil
+			}
+
+			normalized.Outputs = append(normalized.Outputs, abi.Argument{Type: outputType})
 		}
 
 		// Append the methods to the call or transact lists
