@@ -2,12 +2,12 @@ package main
 
 import (
 	"github.com/frostornge/solgen/bind"
-	"github.com/frostornge/solgen/deployments"
+	"github.com/frostornge/solgen/deployment"
 	"github.com/frostornge/solgen/proto"
 )
 
 func main() {
-	contracts, err := deployments.GetDeploymentsFromUrl("http://localhost:8500")
+	contracts, err := deployment.GetDeploymentsFromUrl("http://localhost:8500")
 	if err != nil {
 		panic(err)
 	}
