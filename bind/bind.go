@@ -21,20 +21,14 @@
 package bind
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"log"
 	"os"
 	"path/filepath"
-	"strings"
-	"unicode"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/deployments"
+	"github.com/frostornge/solgen/deployment"
 )
 
-func GenerateBind(path string, deployments deployments.Deployments) error {
+func GenerateBind(path string, deployments deployment.Deployments) error {
 	stat, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(path, os.ModePerm); err != nil {
@@ -47,7 +41,7 @@ func GenerateBind(path string, deployments deployments.Deployments) error {
 	}
 
 	for contractName, contractAbi := range deployments {
-		data := convertToData(contractName, contractAbi, "adapter")
+		data := parseData(contractName, contractAbi, "adapter")
 		file := filepath.Join(path, contractName+".go")
 		if err = RenderFile(file, data); err != nil {
 			return err
@@ -55,97 +49,4 @@ func GenerateBind(path string, deployments deployments.Deployments) error {
 	}
 
 	return nil
-}
-
-// convertToData generates a Go wrapper around a tmplContract ABI. This wrapper isn't meant
-// to be used as is in client code, but rather as an intermediate struct which
-// enforces compile time type safety and naming convention opposed to having to
-// manually maintain hard coded strings that break on runtime.
-func convertToData(name string, evmABI abi.ABI, pkg string) *tmplData {
-	log.SetFlags(log.Llongfile)
-
-	// Process each individual tmplContract requested binding
-	contracts := make(map[string]*tmplContract)
-
-	abiByte, err := json.Marshal(evmABI)
-	if err != nil {
-		return nil
-	}
-	abistr := string(abiByte)
-
-	// Strip any whitespace from the JSON ABI
-	strippedABI := strings.Map(func(r rune) rune {
-		if unicode.IsSpace(r) {
-			return -1
-		}
-		return r
-	}, abistr)
-
-	// Extract the call and transact methods; events; and sort them alphabetically
-	var (
-		calls     = make(map[string]*tmplMethod)
-		transacts = make(map[string]*tmplMethod)
-		events    = make(map[string]*tmplEvent)
-	)
-	for _, original := range evmABI.Methods {
-		// Normalize the tmplMethod for capital cases and non-anonymous inputs/outputs
-		normalized := original
-		normalized.Name = capitalise(original.Name)
-
-		normalized.Inputs = make([]abi.Argument, len(original.Inputs))
-		copy(normalized.Inputs, original.Inputs)
-		for j, input := range normalized.Inputs {
-			if input.Name == "" {
-				normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
-			}
-		}
-		normalized.Outputs = make([]abi.Argument, len(original.Outputs))
-		copy(normalized.Outputs, original.Outputs)
-		for j, output := range normalized.Outputs {
-			if output.Name != "" {
-				normalized.Outputs[j].Name = capitalise(output.Name)
-			}
-		}
-		// Append the methods to the call or transact lists
-		if original.Const {
-			calls[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
-		} else {
-			transacts[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
-		}
-	}
-	for _, original := range evmABI.Events {
-		// Skip anonymous events as they don't support explicit filtering
-		if original.Anonymous {
-			continue
-		}
-		// Normalize the tmplEvent for capital cases and non-anonymous outputs
-		normalized := original
-		normalized.Name = capitalise(original.Name)
-
-		normalized.Inputs = make([]abi.Argument, len(original.Inputs))
-		copy(normalized.Inputs, original.Inputs)
-		for j, input := range normalized.Inputs {
-			// Indexed fields are input, non-indexed ones are outputs
-			if input.Indexed {
-				if input.Name == "" {
-					normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
-				}
-			}
-		}
-		// Append the tmplEvent to the accumulator list
-		events[original.Name] = &tmplEvent{Original: original, Normalized: normalized}
-	}
-	contracts[name] = &tmplContract{
-		Type:        capitalise(name),
-		InputABI:    strings.Replace(strippedABI, "\"", "\\\"", -1),
-		Constructor: evmABI.Constructor,
-		Calls:       calls,
-		Transacts:   transacts,
-		Events:      events,
-	}
-	// Generate the tmplContract template data content and render it
-	return &tmplData{
-		Package:   pkg,
-		Contracts: contracts,
-	}
 }
