@@ -3,6 +3,7 @@ module github.com/frostornge/solgen
 go 1.12
 
 require (
+	github.com/Flaque/filet v0.0.0-20190209224823-fc4d33cfcf93
 	github.com/airbloc/airbloc-go v0.0.0-20190405064450-f4351af728e4
 	github.com/allegro/bigcache v1.2.1 // indirect
 	github.com/apilayer/freegeoip v3.5.0+incompatible // indirect
@@ -22,9 +23,11 @@ require (
 	github.com/oschwald/maxminddb-golang v1.3.1 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/tsdb v0.9.1 // indirect
+	github.com/spf13/afero v1.2.2 // indirect
 	github.com/status-im/keycard-go v0.0.0-20190424133014-d95853db0f48 // indirect
 	github.com/steakknife/bloomfilter v0.0.0-20180922174646-6819c0d2a570 // indirect
 	github.com/steakknife/hamming v0.0.0-20180906055917-c99c65617cd3 // indirect
+	github.com/stretchr/testify v1.3.0
 	github.com/tyler-smith/go-bip39 v1.0.0 // indirect
 	github.com/valyala/fastjson v1.4.1
 	github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208 // indirect
