@@ -26,6 +26,6 @@ Flags:
   -h, --help            help for solgen
   -i, --input string    Input path (default "http://localhost:8500")
   -o, --output string   Output path (default "./out/")
-  -t, --type string     Bind type (default "go")
+  -t, --type string     Bind type (default "go") (options ["proto"])
       --version         version for solgen
 ```
