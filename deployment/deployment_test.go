@@ -92,7 +92,7 @@ func TestGetDeploymentsFromFileInvalidPath(t *testing.T) {
 
 func TestGetDeploymentsFromFileInvalidJson(t *testing.T) {
 	defer filet.CleanUp(t)
-	filet.File(t, TestDeploymentPath, TestDeploymentError+"}}")
+	filet.File(t, TestDeploymentPath, "{"+TestDeploymentError)
 
 	_, err := GetDeploymentsFrom(TestDeploymentPath)
 	assert.IsType(t, &json.SyntaxError{}, err)
