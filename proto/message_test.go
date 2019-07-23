@@ -6,7 +6,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMessage_PrintMessage(t *testing.T) {
+func TestMessage_PrintMessageSimple(t *testing.T) {
+	msg := Message{
+		Comment: "frostornge",
+		Name:    "airbloc",
+		Args: []argument{
+			{
+				Name:     "messageArg3",
+				Repeated: true,
+				Type:     "uint64",
+				Count:    1,
+			},
+		},
+	}
+
+	expected := "// frostornge\n" +
+		"message airbloc {\n\t" +
+		"repeated uint64 messageArg3 = 1;\n}\n"
+	assert.Equal(t, expected, msg.PrintMessage())
+}
+
+func TestMessage_PrintMessageNested(t *testing.T) {
 	msg := Message{
 		Comment: "frostornge",
 		Name:    "airbloc",
