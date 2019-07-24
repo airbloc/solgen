@@ -148,19 +148,29 @@
     }
 {{end}}
 
+{{define "ContractManagerInterface"}}
+    type {{.Type}}Manager interface {
+        // Pure/View methods
+        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
+        {{end}}
+        // Other methods
+        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) ({{if gt (len .Normalized.Outputs) 0}}{{.OutputArgs}},{{end}} error)
+        {{end}}}
+{{end}}
+
 {{define "Contracts"}}
 {{range $contract := .Contracts}}
     {{template "ContractPrimitives" $contract}}
     {{template "ContractCaller" $contract}}
     {{template "ContractTransactor" $contract}}
     {{template "ContractFilterer" $contract}}
+    {{template "ContractManagerInterface" $contract}}
 
     // convenient hacks for blockchain.Client
     func init() {
         blockchain.ContractList["{{.Type}}"] = (&{{.Type}}{}).new
         {{range .Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
-        {{end}}
-    }
+        {{end}}}
 
     // bind{{.Type}} binds a generic wrapper to an already deployed contract.
     func bind{{.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
