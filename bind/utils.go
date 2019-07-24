@@ -97,6 +97,12 @@ func bindUnnestedType(stringKind string) (int, string) {
 
 	case strings.HasPrefix(stringKind, "bytes"):
 		parts := regexp.MustCompile(`bytes([0-9]*)`).FindStringSubmatch(stringKind)
+		switch parts[1] {
+		case "8":
+			return len(parts[0]), "types.ID"
+		case "20":
+			return len(parts[0]), "types.DataId"
+		}
 		return len(parts[0]), fmt.Sprintf("[%s]byte", parts[1])
 
 	case strings.HasPrefix(stringKind, "int") || strings.HasPrefix(stringKind, "uint"):
