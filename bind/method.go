@@ -78,7 +78,7 @@ func parseMethods(evmMethods map[string]abi.Method) (methods, methods) {
 			}
 		}
 
-		if len(original.Outputs) < 2 {
+		if len(original.Outputs) <= 2 {
 			normalized.Outputs = make([]abi.Argument, len(original.Outputs))
 			copy(normalized.Outputs, original.Outputs)
 			for j, output := range normalized.Outputs {

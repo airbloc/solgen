@@ -177,7 +177,7 @@ func toCamelCase(input string) string {
 // structured checks whether a list of ABI data types has enough information to
 // operate through a proper Go struct or if flat returns are needed.
 func structured(args abi.Arguments) bool {
-	if len(args) < 2 {
+	if len(args) <= 2 {
 		if len(args) > 0 {
 			return args[0].Type.T == abi.TupleTy
 		}
