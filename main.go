@@ -45,11 +45,11 @@ func run() func(*cobra.Command, []string) {
 
 		switch rootFlags.typeFlag {
 		case "go":
-			if err := bind.GenerateBind(rootFlags.outputPath, deployments); err != nil {
+			if err := bind.GenerateBind(rootFlags.outputPath, deployments, bind.Options{}); err != nil {
 				panic(err)
 			}
 		case "proto":
-			if err := proto.GenerateBind(rootFlags.outputPath, deployments); err != nil {
+			if err := proto.GenerateBind(rootFlags.outputPath, deployments, proto.Options{}); err != nil {
 				panic(err)
 			}
 		}
