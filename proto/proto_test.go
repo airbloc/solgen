@@ -24,7 +24,22 @@ func TestGenerateBind(t *testing.T) {
 
 	deployments, err := deployment.GetDeploymentsFrom(tmpName)
 	assert.NoError(t, err)
-	assert.NoError(t, GenerateBind(dirName, deployments))
+	assert.NoError(t, GenerateBind(dirName, deployments, Options{}))
 
 	assert.True(t, filet.Exists(t, filepath.Join(dirName, "migrations.proto")))
+}
+
+func TestGenerateBind_Airbloc(t *testing.T) {
+	os.Chdir("..")
+
+	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
+	assert.NoError(t, err)
+	assert.NoError(t, GenerateBind("./test/proto", deployments, Options{
+		"Accounts":           {"(address,uint8,address,address)": "Account"},
+		"AppRegistry":        {"(string,address,bytes32)": "App"},
+		"ControllerRegistry": {"(address,uint256)": "DataController"},
+		"DataTypeRegistry":   {"(string,address,bytes32)": "DataType"},
+		"Exchange":           {"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "Offer"},
+	}))
+
 }

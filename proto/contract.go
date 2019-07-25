@@ -4,22 +4,37 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/deployment"
 )
 
-type Contract struct {
+type contract struct {
 	PackageName string
 	Services    []Service
-	Messages    []Message
+	Messages    []message
+
+	contractName string
+	typeOptions  Options
 }
 
-func parseContract(contractName string, contractAbi abi.ABI) Contract {
+const EmptyMessage = "google.protobuf.Empty"
+
+func (c *contract) parseMessage(name string, comment string, args abi.Arguments) {
+	msg := &message{
+		Args:         make([]argument, len(args)),
+		Comment:      comment,
+		Name:         name,
+		contractName: c.contractName,
+		typeOptions:  c.typeOptions,
+	}
+	msg.parseArguments(args)
+	c.Messages = append(c.Messages, *msg)
+}
+
+func (c *contract) parseContract(contractAbi abi.ABI) {
 	service := Service{
-		Comment: contractName,
-		Name:    contractName,
+		Comment: c.contractName,
+		Name:    c.contractName,
 		Methods: make([]method, len(contractAbi.Methods)),
 	}
-	var messages []Message
 
 	methodIndex := 0
 	for methodName, methodInfo := range contractAbi.Methods {
@@ -29,21 +44,13 @@ func parseContract(contractName string, contractAbi abi.ABI) Contract {
 		if len(methodInfo.Inputs) == 0 {
 			inputMessage = EmptyMessage
 		} else {
-			messages = append(messages, parseMessage(
-				inputMessage,
-				methodInfo.Sig(),
-				methodInfo.Inputs),
-			)
+			c.parseMessage(inputMessage, methodInfo.Sig(), methodInfo.Inputs)
 		}
 
 		if len(methodInfo.Outputs) == 0 {
 			outputMessage = EmptyMessage
 		} else {
-			messages = append(messages, parseMessage(
-				outputMessage,
-				methodInfo.Sig(),
-				methodInfo.Outputs),
-			)
+			c.parseMessage(outputMessage, methodInfo.Sig(), methodInfo.Outputs)
 		}
 
 		service.Methods[methodIndex] = method{
@@ -55,18 +62,6 @@ func parseContract(contractName string, contractAbi abi.ABI) Contract {
 		methodIndex += 1
 	}
 
-	return Contract{
-		PackageName: toLowerCase(contractName, 0),
-		Services:    []Service{service},
-		Messages:    messages,
-	}
-}
-
-func parseContracts(deployments deployment.Deployments) []Contract {
-	contracts, contractsIndex := make([]Contract, len(deployments)), 0
-	for name, deployment := range deployments {
-		contracts[contractsIndex] = parseContract(name, deployment)
-		contractsIndex += 1
-	}
-	return contracts
+	c.PackageName = toLowerCase(c.contractName, 0)
+	c.Services = []Service{service}
 }

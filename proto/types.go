@@ -1,15 +1,17 @@
 package proto
 
 import (
+	"log"
 	"strconv"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 const StructPrefix = "XYX__tmp"
 
-func parseType(index int, a abi.Argument) (msg *Message, arg *argument) {
-	argName := parseName(index, a)
+func parseType(index int, a abi.Argument, typeOptions map[string]string) (msg *message, arg *argument) {
+	argName := toLowerCase(parseName(index, a), 0)
 	argType := a.Type
 
 	repeated := argType.T == abi.ArrayTy || argType.T == abi.SliceTy
@@ -22,10 +24,22 @@ func parseType(index int, a abi.Argument) (msg *Message, arg *argument) {
 	}
 
 	if arg.Type == "struct" {
-		msg = &Message{
+		log.Println(a)
+		log.Println(argType.String(), argType.TupleRawNames)
+		msg = &message{
 			Args:    make([]argument, len(argType.TupleElems)),
 			Comment: argType.Type.String(),
 			Name:    StructPrefix + toUpperCase(argType.Kind.String(), 0) + strconv.Itoa(index),
+		}
+
+		if !strings.HasPrefix(argName, "struct") {
+			arg.Name = toLowerCase(argName, 0)
+			msg.Name = toUpperCase(argName, 0)
+		}
+
+		if name, ok := typeOptions[argType.String()]; ok {
+			arg.Name = toLowerCase(name, 0)
+			msg.Name = toUpperCase(name, 0)
 		}
 
 		args := make([]abi.Argument, len(argType.TupleElems))
@@ -36,7 +50,7 @@ func parseType(index int, a abi.Argument) (msg *Message, arg *argument) {
 			}
 		}
 
-		*msg = parseArguments(*msg, args)
+		msg.parseArguments(args)
 		arg.Type = msg.Name
 	}
 

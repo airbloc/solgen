@@ -14,17 +14,6 @@ type argument struct {
 	Count    int
 }
 
-func parseArguments(msg Message, args []abi.Argument) Message {
-	for index, arg := range args {
-		m, a := parseType(index+1, arg)
-		if m != nil {
-			msg.Msgs = append(msg.Msgs, *m)
-		}
-		msg.Args[index] = *a
-	}
-	return msg
-}
-
 func (arg argument) printArg(prefix string) string {
 	str := fmt.Sprintf("%s %s = %d;", arg.Type, arg.Name, arg.Count)
 	if arg.Repeated {
@@ -33,32 +22,31 @@ func (arg argument) printArg(prefix string) string {
 	return prefix + str + "\n"
 }
 
-type Message struct {
+type message struct {
 	Comment string
 	Name    string
-	Msgs    []Message
+	Msgs    []message
 	Args    []argument
+
+	contractName string
+	typeOptions  Options
 }
 
-const EmptyMessage = "google.protobuf.Empty"
-
-func parseMessage(name string, comment string, args abi.Arguments) Message {
-	msg := Message{
-		Args:    make([]argument, len(args)),
-		Comment: comment,
-		Name:    name,
+func (msg *message) parseArguments(args []abi.Argument) {
+	for index, arg := range args {
+		m, a := parseType(index+1, arg, msg.typeOptions[msg.contractName])
+		if m != nil {
+			msg.Msgs = append(msg.Msgs, *m)
+		}
+		msg.Args[index] = *a
 	}
-
-	msg = parseArguments(msg, args)
-
-	return msg
 }
 
-func (msg Message) PrintMessage() string {
+func (msg message) PrintMessage() string {
 	return msg.printMessage("")
 }
 
-func (msg Message) printMessage(prefix string) string {
+func (msg message) printMessage(prefix string) string {
 	var builder strings.Builder
 
 	builder.WriteString(prefix + fmt.Sprintf("// %s", msg.Comment) + "\n")

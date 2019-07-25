@@ -9,7 +9,7 @@ import (
 
 const templatePath = "./proto/templates/*"
 
-func render(writer io.Writer, c Contract) error {
+func render(writer io.Writer, c contract) error {
 	tmpl := template.Must(template.New("Bind").ParseGlob(templatePath))
 	if err := tmpl.ExecuteTemplate(writer, "Bind", c); err != nil {
 		return err
@@ -17,7 +17,7 @@ func render(writer io.Writer, c Contract) error {
 	return nil
 }
 
-func Render(c Contract) ([]byte, error) {
+func Render(c contract) ([]byte, error) {
 	buffer := new(bytes.Buffer)
 	if err := render(buffer, c); err != nil {
 		return nil, err
@@ -25,7 +25,7 @@ func Render(c Contract) ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
-func RenderFile(path string, c Contract) error {
+func RenderFile(path string, c contract) error {
 	var out *os.File
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		out, err = os.Create(path)

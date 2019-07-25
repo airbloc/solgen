@@ -7,7 +7,7 @@ import (
 )
 
 func TestMessage_PrintMessageSimple(t *testing.T) {
-	msg := Message{
+	msg := message{
 		Comment: "frostornge",
 		Name:    "airbloc",
 		Args: []argument{
@@ -27,10 +27,10 @@ func TestMessage_PrintMessageSimple(t *testing.T) {
 }
 
 func TestMessage_PrintMessageNested(t *testing.T) {
-	msg := Message{
+	msg := message{
 		Comment: "frostornge",
 		Name:    "airbloc",
-		Msgs: []Message{
+		Msgs: []message{
 			{
 				Comment: "test struct",
 				Name:    "struct",
