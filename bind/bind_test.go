@@ -24,7 +24,28 @@ func TestGenerateBind(t *testing.T) {
 
 	deployments, err := deployment.GetDeploymentsFrom(tmpName)
 	assert.NoError(t, err)
-	assert.NoError(t, GenerateBind(dirName, deployments))
+	assert.NoError(t, GenerateBind(dirName, deployments, Options{}))
 
 	assert.True(t, filet.Exists(t, filepath.Join(dirName, "Migrations.go")))
+}
+
+func TestGenerateBind_Airbloc(t *testing.T) {
+	os.Chdir("..")
+
+	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
+	assert.NoError(t, err)
+	assert.NoError(t, GenerateBind("./test/bind", deployments, Options{
+		"default": {
+			"bytes8":    "types.ID",
+			"bytes8[]":  "[]types.ID",
+			"bytes20":   "types.DataId",
+			"bytes20[]": "[]types.DataId",
+			"bytes32":   "common.Hash",
+		},
+		"Accounts":           {"(address,uint8,address,address)": "types.Account"},
+		"AppRegistry":        {"(string,address,bytes32)": "types.App"},
+		"ControllerRegistry": {"(address,uint256)": "types.DataController"},
+		"DataTypeRegistry":   {"(string,address,bytes32)": "types.DataType"},
+		"Exchange":           {"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer"},
+	}))
 }
