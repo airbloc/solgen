@@ -159,34 +159,32 @@
 {{end}}
 
 {{define "Contracts"}}
-{{range $contract := .Contracts}}
-    {{template "ContractPrimitives" $contract}}
-    {{template "ContractCaller" $contract}}
-    {{template "ContractTransactor" $contract}}
-    {{template "ContractFilterer" $contract}}
-    {{template "ContractManagerInterface" $contract}}
+    {{template "ContractPrimitives" .Contract}}
+    {{template "ContractCaller" .Contract}}
+    {{template "ContractTransactor" .Contract}}
+    {{template "ContractFilterer" .Contract}}
+    {{template "ContractManagerInterface" .Contract}}
 
     // convenient hacks for blockchain.Client
     func init() {
-        blockchain.ContractList["{{.Type}}"] = (&{{.Type}}{}).new
-        {{range .Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
+        blockchain.ContractList["{{.Contract.Type}}"] = (&{{.Contract.Type}}{}).new
+        {{range .Contract.Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
         {{end}}}
 
-    // bind{{.Type}} binds a generic wrapper to an already deployed contract.
-    func bind{{.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
-        parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
+    // bind{{.Contract.Type}} binds a generic wrapper to an already deployed contract.
+    func bind{{.Contract.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+        parsed, err := abi.JSON(strings.NewReader({{.Contract.Type}}ABI))
         if err != nil {
             return nil, err
         }
         return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
     }
 
-    func (_{{.Type}} *{{.Type}}) new(address common.Address, backend bind.ContractBackend) (interface{}, error) {
-        return New{{.Type}}(address, backend)
+    func (_{{.Contract.Type}} *{{.Contract.Type}}) new(address common.Address, backend bind.ContractBackend) (interface{}, error) {
+        return New{{.Contract.Type}}(address, backend)
     }
 
-    {{template "MethodCalls" $contract}}
-    {{template "MethodTransacts" $contract}}
-    {{template "Events" $contract}}
-{{end}}
+    {{template "MethodCalls" .Contract}}
+    {{template "MethodTransacts" .Contract}}
+    {{template "Events" .Contract}}
 {{end}}
