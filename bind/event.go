@@ -11,12 +11,9 @@ type event struct {
 	Normalized abi.Event
 }
 
-type events map[string]*event
-
-func parseEvents(evmEvents map[string]abi.Event) events {
-	events := make(events)
-
-	for _, original := range evmEvents {
+func parseEvents(evmABI abi.ABI) map[string]*event {
+	events := make(map[string]*event)
+	for _, original := range evmABI.Events {
 		// Skip anonymous events as they don't support explicit filtering
 		if original.Anonymous {
 			continue
@@ -38,6 +35,5 @@ func parseEvents(evmEvents map[string]abi.Event) events {
 		// Append the tmplEvent to the accumulator list
 		events[original.Name] = &event{Original: original, Normalized: normalized}
 	}
-
 	return events
 }

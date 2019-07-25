@@ -6,27 +6,34 @@ import (
 
 type contract struct {
 	Type        string
+	TypeOption  option
 	InputABI    string
 	Constructor abi.Method
-	Calls       methods
-	Transacts   methods
-	Events      events
+	Calls       map[string]*method
+	Transacts   map[string]*method
+	Events      map[string]*event
 }
 
-func parseContract(name string, evmABI abi.ABI) *contract {
+func parseContract(evmABI abi.ABI, contractName string, typeOption option) (*contract, error) {
 	inputABI, err := stripABI(evmABI)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	calls, transacts := parseMethods(evmABI.Methods)
-
-	return &contract{
-		Type:        capitalise(name),
+	contract := &contract{
+		Type:        capitalise(contractName),
+		TypeOption:  typeOption,
 		InputABI:    inputABI,
 		Constructor: evmABI.Constructor,
-		Calls:       calls,
-		Transacts:   transacts,
-		Events:      parseEvents(evmABI.Events),
+		Calls:       make(map[string]*method),
+		Transacts:   make(map[string]*method),
+		Events:      parseEvents(evmABI),
 	}
+
+	contract.Calls, contract.Transacts, err = parseMethods(evmABI, typeOption)
+	if err != nil {
+		return nil, err
+	}
+
+	return contract, nil
 }

@@ -21,32 +21,15 @@ import (
 	"fmt"
 	"go/format"
 	"io"
-	"log"
 	"os"
 	"reflect"
 	"text/template"
-
-	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 // tmplData is the data structure required to fill the binding template.
 type tmplData struct {
-	Package   string               // Name of the package to place the generated file in
-	Contracts map[string]*contract // List of contracts to generate into this file
-}
-
-func parseData(name string, evmABI abi.ABI, pkg string) *tmplData {
-	log.SetFlags(log.Llongfile)
-
-	// Process each individual tmplContract requested binding
-	contracts := make(map[string]*contract)
-	contracts[name] = parseContract(name, evmABI)
-
-	// Generate the tmplContract template data content and render it
-	return &tmplData{
-		Package:   pkg,
-		Contracts: contracts,
-	}
+	Package  string    // Name of the package to place the generated file in
+	Contract *contract // List of contracts to generate into this file
 }
 
 const templatePath = "./bind/templates/*"

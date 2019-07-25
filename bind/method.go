@@ -2,7 +2,6 @@ package bind
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -12,6 +11,7 @@ type method struct {
 	Original   abi.Method
 	Normalized abi.Method
 	Structured bool
+	typeOption option
 }
 
 /*
@@ -26,7 +26,7 @@ func (mtd method) InputArgs(withType bool) string {
 	for _, input := range mtd.Normalized.Inputs {
 		builder.WriteString(input.Name)
 		if withType {
-			builder.WriteString(" " + bindType(input.Type))
+			builder.WriteString(" " + bindType(input.Type, mtd.typeOption))
 		}
 		builder.WriteString(",")
 	}
@@ -49,7 +49,7 @@ func (mtd method) OutputArgs() string {
 	var builder strings.Builder
 
 	for _, output := range mtd.Normalized.Outputs {
-		builder.WriteString(bindType(output.Type) + ",")
+		builder.WriteString(bindType(output.Type, mtd.typeOption) + ",")
 	}
 
 	argStr := builder.String()
@@ -59,13 +59,11 @@ func (mtd method) OutputArgs() string {
 	return argStr[:len(argStr)-1]
 }
 
-type methods map[string]*method
+func parseMethods(evmABI abi.ABI, typeOption option) (map[string]*method, map[string]*method, error) {
+	calls := make(map[string]*method)
+	transacts := make(map[string]*method)
 
-func parseMethods(evmMethods map[string]abi.Method) (methods, methods) {
-	calls := make(methods)
-	transacts := make(methods)
-
-	for _, original := range evmMethods {
+	for _, original := range evmABI.Methods {
 		// Normalize the tmplMethod for capital cases and non-anonymous inputs/outputs
 		normalized := original
 		normalized.Name = capitalise(original.Name)
@@ -101,8 +99,7 @@ func parseMethods(evmMethods map[string]abi.Method) (methods, methods) {
 
 			outputType, err := abi.NewType("tuple", args)
 			if err != nil {
-				log.Println(err)
-				return nil, nil
+				return nil, nil, err
 			}
 
 			normalized.Outputs = append(normalized.Outputs, abi.Argument{Type: outputType})
@@ -114,15 +111,17 @@ func parseMethods(evmMethods map[string]abi.Method) (methods, methods) {
 				Original:   original,
 				Normalized: normalized,
 				Structured: structured(original.Outputs),
+				typeOption: typeOption,
 			}
 		} else {
 			transacts[original.Name] = &method{
 				Original:   original,
 				Normalized: normalized,
 				Structured: structured(original.Outputs),
+				typeOption: typeOption,
 			}
 		}
 	}
 
-	return calls, transacts
+	return calls, transacts, nil
 }
