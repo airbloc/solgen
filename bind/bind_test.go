@@ -31,6 +31,7 @@ func TestGenerateBind(t *testing.T) {
 
 func TestGenerateBind_Airbloc(t *testing.T) {
 	os.Chdir("..")
+	os.RemoveAll("./test/bind")
 
 	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	assert.NoError(t, err)
