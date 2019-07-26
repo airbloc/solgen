@@ -20,6 +20,7 @@ var (
 		typeFlag   string
 		inputPath  string
 		outputPath string
+		optionPath string
 	}
 )
 
@@ -28,6 +29,7 @@ func init() {
 	rflags.StringVarP(&rootFlags.typeFlag, "type", "t", "go", "Bind type")
 	rflags.StringVarP(&rootFlags.inputPath, "input", "i", "http://localhost:8500", "Input path")
 	rflags.StringVarP(&rootFlags.outputPath, "output", "o", "./out/", "Output path")
+	rflags.StringVarP(&rootFlags.optionPath, "option", "p", "./option.json", "Option path")
 }
 
 func main() {
@@ -45,7 +47,12 @@ func run() func(*cobra.Command, []string) {
 
 		switch rootFlags.typeFlag {
 		case "go":
-			if err := bind.GenerateBind(rootFlags.outputPath, deployments, bind.Options{}); err != nil {
+			opts, err := bind.GetOption(rootFlags.optionPath)
+			if err != nil {
+				panic(err)
+			}
+
+			if err := bind.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
 				panic(err)
 			}
 		case "proto":
