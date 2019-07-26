@@ -149,6 +149,7 @@
 {{end}}
 
 {{define "ContractManager"}}{{$contract := .}}
+    //go:generate mockgen -source {{toSnakeCase .Type}}.go -destination ./mocks/mock_{{toSnakeCase .Type}}.go -package mocks I{{.Type}}Manager,I{{.Type}}Contract
     type I{{.Type}}Manager interface {
         // Call methods
         {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
