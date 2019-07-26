@@ -11,16 +11,6 @@ import (
 	"github.com/frostornge/solgen/deployment"
 )
 
-type option map[string]string
-
-func (opt option) apply(o option) {
-	for k, v := range o {
-		opt[k] = v
-	}
-}
-
-type Options map[string]option
-
 type binder struct {
 	data         *tmplData
 	contractName string
