@@ -16,7 +16,7 @@ type method struct {
 
 /*
 if true
-	{{range .Normalized.Inputs}} {{.Name}} {{bindtype .Type}} {{end}}
+	{{range .Normalized.Inputs}} {{.Name}} {{bindType .Type}} {{end}}
 else
 	{{range .Normalized.Inputs}}, {{.Name}}{{end}}
 */
@@ -40,9 +40,9 @@ func (mtd method) InputArgs(withType bool) string {
 
 /*
 {{if .Structured}}
-	struct{{{range .Normalized.Outputs}} {{.Name}} {{bindtype .Type}}; {{end}}},
+	struct{{{range .Normalized.Outputs}} {{.Name}} {{bindType .Type}}; {{end}}},
 {{else}}
-	{{range .Normalized.Outputs}}{{bindtype .Type}}, {{end}}
+	{{range .Normalized.Outputs}}{{bindType .Type}}, {{end}}
 {{end}}
 */
 func (mtd method) OutputArgs() string {

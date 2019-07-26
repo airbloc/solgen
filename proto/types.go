@@ -1,9 +1,10 @@
 package proto
 
 import (
-	"log"
 	"strconv"
 	"strings"
+
+	"github.com/frostornge/solgen/utils"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
@@ -11,7 +12,7 @@ import (
 const StructPrefix = "XYX__tmp"
 
 func parseType(index int, a abi.Argument, typeOptions map[string]string) (msg *message, arg *argument) {
-	argName := toLowerCase(parseName(index, a), 0)
+	argName := utils.Decapitalise(parseName(index, a))
 	argType := a.Type
 
 	repeated := argType.T == abi.ArrayTy || argType.T == abi.SliceTy
@@ -24,22 +25,20 @@ func parseType(index int, a abi.Argument, typeOptions map[string]string) (msg *m
 	}
 
 	if arg.Type == "struct" {
-		log.Println(a)
-		log.Println(argType.String(), argType.TupleRawNames)
 		msg = &message{
 			Args:    make([]argument, len(argType.TupleElems)),
 			Comment: argType.Type.String(),
-			Name:    StructPrefix + toUpperCase(argType.Kind.String(), 0) + strconv.Itoa(index),
+			Name:    StructPrefix + utils.Capitalize(argType.Kind.String()) + strconv.Itoa(index),
 		}
 
 		if !strings.HasPrefix(argName, "struct") {
-			arg.Name = toLowerCase(argName, 0)
-			msg.Name = toUpperCase(argName, 0)
+			arg.Name = utils.Decapitalise(argName)
+			msg.Name = utils.Capitalize(argName)
 		}
 
 		if name, ok := typeOptions[argType.String()]; ok {
-			arg.Name = toLowerCase(name, 0)
-			msg.Name = toUpperCase(name, 0)
+			arg.Name = utils.Decapitalise(name)
+			msg.Name = utils.Capitalize(name)
 		}
 
 		args := make([]abi.Argument, len(argType.TupleElems))

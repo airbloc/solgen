@@ -20,7 +20,7 @@ func TestGenerateBind(t *testing.T) {
 	tmpName := filepath.Join(dirName, TestDeploymentPath)
 	filet.File(t, tmpName, TestDeployment)
 
-	os.Chdir("..")
+	assert.NoError(t, os.Chdir(".."))
 
 	deployments, err := deployment.GetDeploymentsFrom(tmpName)
 	assert.NoError(t, err)
@@ -30,8 +30,8 @@ func TestGenerateBind(t *testing.T) {
 }
 
 func TestGenerateBind_Airbloc(t *testing.T) {
-	os.Chdir("..")
-	os.RemoveAll("./test/bind")
+	assert.NoError(t, os.Chdir(".."))
+	assert.NoError(t, os.RemoveAll("./test/bind"))
 
 	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	assert.NoError(t, err)

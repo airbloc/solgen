@@ -24,6 +24,8 @@ import (
 	"os"
 	"reflect"
 	"text/template"
+
+	"github.com/frostornge/solgen/utils"
 )
 
 // tmplData is the data structure required to fill the binding template.
@@ -39,10 +41,10 @@ func render(writer io.Writer, data *tmplData) error {
 		"last": func(x int, a interface{}) bool {
 			return x == reflect.ValueOf(a).Len()-1
 		},
-		"bindtype":      bindType,
-		"bindtopictype": bindTopicType,
-		"capitalise":    capitalise,
-		"decapitalise":  decapitalise,
+		"bindType":      bindType,
+		"bindTopicType": bindTopicType,
+		"capitalise":    utils.Capitalize,
+		"toSnakeCase":   utils.ToSnakeCase,
 	}
 
 	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(templatePath))

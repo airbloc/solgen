@@ -3,6 +3,8 @@ package proto
 import (
 	"fmt"
 
+	"github.com/frostornge/solgen/utils"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
@@ -38,8 +40,8 @@ func (c *contract) parseContract(contractAbi abi.ABI) {
 
 	methodIndex := 0
 	for methodName, methodInfo := range contractAbi.Methods {
-		inputMessage := fmt.Sprintf("Request%s", toUpperCase(methodName, 0))
-		outputMessage := fmt.Sprintf("Response%s", toUpperCase(methodName, 0))
+		inputMessage := fmt.Sprintf("Request%s", utils.Capitalize(methodName))
+		outputMessage := fmt.Sprintf("Response%s", utils.Capitalize(methodName))
 
 		if len(methodInfo.Inputs) == 0 {
 			inputMessage = EmptyMessage
@@ -62,6 +64,6 @@ func (c *contract) parseContract(contractAbi abi.ABI) {
 		methodIndex += 1
 	}
 
-	c.PackageName = toLowerCase(c.contractName, 0)
+	c.PackageName = utils.ToSnakeCase(c.contractName)
 	c.Services = []Service{service}
 }

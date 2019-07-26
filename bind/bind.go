@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-
 	"github.com/frostornge/solgen/deployment"
+	"github.com/frostornge/solgen/utils"
 )
 
 type binder struct {
@@ -37,6 +37,8 @@ func (bind *binder) parseData(evmABI abi.ABI, pkg string) error {
 }
 
 func GenerateBind(path string, deployments deployment.Deployments, typeOptions Options) error {
+	log.SetFlags(log.Llongfile)
+
 	stat, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(path, os.ModePerm); err != nil {
@@ -58,7 +60,7 @@ func GenerateBind(path string, deployments deployment.Deployments, typeOptions O
 			return err
 		}
 
-		file := filepath.Join(path, contractName+".go")
+		file := filepath.Join(path, utils.ToSnakeCase(contractName)+".go")
 		if err = RenderFile(file, bind.data); err != nil {
 			return err
 		}
