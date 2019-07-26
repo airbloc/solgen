@@ -14,7 +14,7 @@
         {{if .Structured}}ret := new({{.OutputArgs}})
         {{else}}var(
             {{range $i, $_ := .Normalized.Outputs}}ret{{$i}}{{if not (last $i $method.Normalized.Outputs)}},{{end}}{{end}} =
-            {{range $i, $_ := .Normalized.Outputs}}new({{bindtype .Type $contract.TypeOption}}){{if not (last $i $method.Normalized.Outputs)}},{{end}}{{end}}
+            {{range $i, $_ := .Normalized.Outputs}}new({{bindType .Type $contract.TypeOption}}){{if not (last $i $method.Normalized.Outputs)}},{{end}}{{end}}
         ){{end}}
         out := {{if .Structured}}ret{{else}}&[]interface{}{ {{range $i, $_ := .Normalized.Outputs}}ret{{$i}},{{end}} }{{end}}
         err := _{{$contract.Type}}.contract.Call(opts, out, "{{.Original.Name}}", {{.InputArgs false}})
