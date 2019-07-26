@@ -3,6 +3,13 @@
     // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
     //
     // Solidity: {{.Original.String}}
+    func (manager *{{$contract.Type}}Contract) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        return manager.contract.{{.Normalized.Name}}(nil, {{.InputArgs false}})
+    }
+
+    // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
     func (_{{$contract.Type}} *{{$contract.Type}}Caller) {{.Normalized.Name}}(opts *bind.CallOpts, {{.InputArgs true}}) ({{.OutputArgs}}, error) {
         {{if .Structured}}ret := new({{.OutputArgs}})
         {{else}}var(
@@ -31,6 +38,17 @@
 
 {{define "MethodTransacts"}}{{$contract := .}}
 {{range .Transacts}}
+    // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (manager *{{$contract.Type}}Contract) {{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error) {
+        tx, err := manager.contract.{{.Normalized.Name}}(manager.client.Account(), {{.InputArgs false}})
+        if err != nil {
+            return nil, err
+        }
+        return manager.client.WaitMined(ctx, tx)
+    }
+
     // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
     //
     // Solidity: {{.Original.String}}

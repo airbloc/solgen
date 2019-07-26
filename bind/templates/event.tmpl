@@ -92,6 +92,13 @@
     // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
     //
     // Solidity: {{.Original.String}}
+    func (manager *{{$contract.Type}}Contract) Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
+        return manager.contract.Parse{{.Normalized.Name}}FromReceipt(receipt)
+    }
+
+    // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
+    //
+    // Solidity: {{.Original.String}}
     func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
         for _, log := range receipt.Logs {
             if log.Topics[0] == common.HexToHash("0x{{printf "%x" .Original.Id}}") {

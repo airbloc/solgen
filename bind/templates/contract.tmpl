@@ -148,14 +148,40 @@
     }
 {{end}}
 
-{{define "ContractManagerInterface"}}
-    type {{.Type}}Manager interface {
-        // Pure/View methods
+{{define "ContractManager"}}{{$contract := .}}
+    type I{{.Type}}Manager interface {
+        // Call methods
         {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
         {{end}}
-        // Other methods
+        // Transact methods
         {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) ({{if gt (len .Normalized.Outputs) 0}}{{.OutputArgs}},{{end}} error)
         {{end}}}
+
+    type I{{.Type}}Contract interface {
+        // Call methods
+        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
+        {{end}}
+        // Transact methods
+        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error)
+        {{end}}
+        // Event parser
+        {{range .Events}}Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error)
+        {{end}}}
+
+    // Manager is contract wrapper struct
+    type {{.Type}}Contract struct {
+        client   blockchain.TxClient
+        contract *{{.Type}}
+    }
+
+    // NewManager makes new *Manager struct
+    func New{{.Type}}Contract(client blockchain.TxClient) I{{.Type}}Contract {
+        contract := client.GetContract(&{{.Type}}{})
+        return &{{.Type}}Manager{
+            client:   client,
+            contract: contract.(*{{.Type}}),
+        }
+    }
 {{end}}
 
 {{define "Contracts"}}
@@ -163,7 +189,7 @@
     {{template "ContractCaller" .Contract}}
     {{template "ContractTransactor" .Contract}}
     {{template "ContractFilterer" .Contract}}
-    {{template "ContractManagerInterface" .Contract}}
+    {{template "ContractManager" .Contract}}
 
     // convenient hacks for blockchain.Client
     func init() {
