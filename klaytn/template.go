@@ -34,7 +34,7 @@ type tmplData struct {
 	Contract *contract // List of contracts to generate into this file
 }
 
-const templatePath = "./bind/templates/*"
+const templatePath = "./klaytn/templates/*"
 
 func render(writer io.Writer, data *tmplData) error {
 	funcs := template.FuncMap{
