@@ -3,7 +3,8 @@
 
 .idea
 test/proto
-test/bind
+test/ethereum
+test/klaytn
 
 ### Code ###
 .vscode/*
