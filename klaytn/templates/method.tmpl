@@ -1,0 +1,78 @@
+{{define "MethodCalls"}}{{$contract := .}}
+    type I{{.Type}}Calls interface {
+        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
+    {{end}} }
+{{range $method := .Calls}}
+    // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        return c.contract.{{.Normalized.Name}}(nil, {{.InputArgs false}})
+    }
+
+    // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Caller) {{.Normalized.Name}}(opts *bind.CallOpts, {{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        {{if .Structured}}ret := new({{.OutputArgs}})
+        {{else}}var(
+            {{range $i, $_ := .Normalized.Outputs}}ret{{$i}}{{if not (last $i $method.Normalized.Outputs)}},{{end}}{{end}} =
+            {{range $i, $_ := .Normalized.Outputs}}new({{bindType .Type $contract.TypeOption}}){{if not (last $i $method.Normalized.Outputs)}},{{end}}{{end}}
+        ){{end}}
+        out := {{if .Structured}}ret{{else}}&[]interface{}{ {{range $i, $_ := .Normalized.Outputs}}ret{{$i}},{{end}} }{{end}}
+        err := _{{$contract.Type}}.contract.Call(opts, out, "{{.Original.Name}}", {{.InputArgs false}})
+        return {{if .Structured}}*ret,{{else}}{{range $i, $_ := .Normalized.Outputs}}*ret{{$i}},{{end}}{{end}} err
+    }
+
+    // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Session) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        return _{{$contract.Type}}.Contract.{{.Normalized.Name}}(&_{{$contract.Type}}.CallOpts, {{.InputArgs false}})
+    }
+
+    // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}CallerSession) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        return _{{$contract.Type}}.Contract.{{.Normalized.Name}}(&_{{$contract.Type}}.CallOpts, {{.InputArgs false}})
+    }
+{{end}}{{end}}
+
+{{define "MethodTransacts"}}{{$contract := .}}
+    type I{{.Type}}Transacts interface {
+        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*klayTypes.Receipt, error)
+    {{end}} }
+{{range .Transacts}}
+    // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*klayTypes.Receipt, error) {
+        tx, err := c.contract.{{.Normalized.Name}}(c.client.Account(), {{.InputArgs false}})
+        if err != nil {
+            return nil, err
+        }
+        return c.client.WaitMined(ctx, tx)
+    }
+
+    // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Transactor) {{.Normalized.Name}}(opts *bind.TransactOpts, {{.InputArgs true}}) (*klayTypes.Transaction, error) {
+        return _{{$contract.Type}}.contract.Transact(opts, "{{.Original.Name}}", {{.InputArgs false}})
+    }
+
+    // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Session) {{.Normalized.Name}}({{.InputArgs true}}) (*klayTypes.Transaction, error) {
+        return _{{$contract.Type}}.Contract.{{.Normalized.Name}}(&_{{$contract.Type}}.TransactOpts, {{.InputArgs false}})
+    }
+
+    // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}TransactorSession) {{.Normalized.Name}}({{.InputArgs true}}) (*klayTypes.Transaction, error) {
+        return _{{$contract.Type}}.Contract.{{.Normalized.Name}}(&_{{$contract.Type}}.TransactOpts, {{.InputArgs false}})
+    }
+{{end}}{{end}}

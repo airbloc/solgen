@@ -1,0 +1,260 @@
+{{define "ContractPrimitives"}}
+    // {{.Type}}ABI is the input ABI used to generate the binding from.
+    const {{.Type}}ABI = "{{.InputABI}}"
+
+    // {{.Type}} is an auto generated Go binding around an Ethereum contract.
+    type {{.Type}} struct {
+        address common.Address
+        txHash common.Hash
+        createdAt *big.Int
+        {{.Type}}Caller     	// Read-only binding to the contract
+        {{.Type}}Transactor 	// Write-only binding to the contract
+        {{.Type}}Filterer   	// Log filterer for contract events
+    }
+
+    // Address is getter method of {{.Type}}.address
+    func (_{{.Type}} *{{.Type}}) Address() common.Address {
+        return _{{.Type}}.address
+    }
+
+    // TxHash is getter method of {{.Type}}.txHash
+    func (_{{.Type}} *{{.Type}}) TxHash() common.Hash {
+        return _{{.Type}}.txHash
+    }
+
+    // CreatedAt is getter method of {{.Type}}.createdAt
+    func (_{{.Type}} *{{.Type}}) CreatedAt() *big.Int {
+        return _{{.Type}}.createdAt
+    }
+
+    // {{.Type}}Session is an auto generated Go binding around an Ethereum contract,
+    // with pre-set call and transact options.
+    type {{.Type}}Session struct {
+        Contract     *{{.Type}}        // Generic contract binding to set the session for
+        CallOpts     bind.CallOpts     // Call options to use throughout this session
+        TransactOpts bind.TransactOpts // Transaction auth options to use throughout this session
+    }
+
+    // {{.Type}}Raw is an auto generated low-level Go binding around an Ethereum contract.
+    type {{.Type}}Raw struct {
+        Contract *{{.Type}} // Generic contract binding to access the raw methods on
+    }
+
+    // New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
+    func New{{.Type}}(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (*{{.Type}}, error) {
+        contract, err := bind{{.Type}}(address, backend, backend, backend)
+        if err != nil {
+            return nil, err
+        }
+        return &{{.Type}}{
+            address: address,
+            txHash: txHash,
+            createdAt: createdAt,
+            {{.Type}}Caller: {{.Type}}Caller{contract: contract},
+            {{.Type}}Transactor: {{.Type}}Transactor{contract: contract},
+            {{.Type}}Filterer: {{.Type}}Filterer{contract: contract},
+        }, nil
+    }
+
+    // bind{{.Type}} binds a generic wrapper to an already deployed contract.
+    func bind{{.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+        parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
+        if err != nil {
+            return nil, err
+        }
+        return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+    }
+
+    // Call invokes the (constant) contract method with params as input values and
+    // sets the output to result. The result type might be a single field for simple
+    // returns, a slice of interfaces for anonymous returns and a struct for named
+    // returns.
+    func (_{{.Type}} *{{.Type}}Raw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+        return _{{.Type}}.Contract.{{.Type}}Caller.contract.Call(opts, result, method, params...)
+    }
+
+    // Transfer initiates a plain transaction to move funds to the contract, calling
+    // its default method if one is available.
+    func (_{{.Type}} *{{.Type}}Raw) Transfer(opts *bind.TransactOpts) (*klayTypes.Transaction, error) {
+        return _{{.Type}}.Contract.{{.Type}}Transactor.contract.Transfer(opts)
+    }
+
+    // Transact invokes the (paid) contract method with params as input values.
+    func (_{{.Type}} *{{.Type}}Raw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*klayTypes.Transaction, error) {
+        return _{{.Type}}.Contract.{{.Type}}Transactor.contract.Transact(opts, method, params...)
+    }
+{{end}}
+
+{{define "ContractCaller"}}
+    // {{.Type}}Caller is an auto generated read-only Go binding around an Ethereum contract.
+    type {{.Type}}Caller struct {
+        contract *bind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    // {{.Type}}CallerSession is an auto generated read-only Go binding around an Ethereum contract,
+    // with pre-set call options.
+    type {{.Type}}CallerSession struct {
+        Contract *{{.Type}}Caller // Generic contract caller binding to set the session for
+        CallOpts bind.CallOpts    // Call options to use throughout this session
+    }
+
+    // {{.Type}}CallerRaw is an auto generated low-level read-only Go binding around an Ethereum contract.
+    type {{.Type}}CallerRaw struct {
+        Contract *{{.Type}}Caller // Generic read-only contract binding to access the raw methods on
+    }
+
+    // New{{.Type}}Caller creates a new read-only instance of {{.Type}}, bound to a specific deployed contract.
+    func New{{.Type}}Caller(address common.Address, caller bind.ContractCaller) (*{{.Type}}Caller, error) {
+        contract, err := bind{{.Type}}(address, caller, nil, nil)
+        if err != nil {
+            return nil, err
+        }
+        return &{{.Type}}Caller{contract: contract}, nil
+    }
+
+    // Call invokes the (constant) contract method with params as input values and
+    // sets the output to result. The result type might be a single field for simple
+    // returns, a slice of interfaces for anonymous returns and a struct for named
+    // returns.
+    func (_{{.Type}} *{{.Type}}CallerRaw) Call(opts *bind.CallOpts, result interface{}, method string, params ...interface{}) error {
+        return _{{.Type}}.Contract.contract.Call(opts, result, method, params...)
+    }
+{{end}}
+
+{{define "ContractTransactor"}}
+    // {{.Type}}Transactor is an auto generated write-only Go binding around an Ethereum contract.
+    type {{.Type}}Transactor struct {
+        contract *bind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    // {{.Type}}TransactorSession is an auto generated write-only Go binding around an Ethereum contract,
+    // with pre-set transact options.
+    type {{.Type}}TransactorSession struct {
+        Contract     *{{.Type}}Transactor // Generic contract transactor binding to set the session for
+        TransactOpts bind.TransactOpts    // Transaction auth options to use throughout this session
+    }
+
+    // {{.Type}}TransactorRaw is an auto generated low-level write-only Go binding around an Ethereum contract.
+    type {{.Type}}TransactorRaw struct {
+        Contract *{{.Type}}Transactor // Generic write-only contract binding to access the raw methods on
+    }
+
+    // New{{.Type}}Transactor creates a new write-only instance of {{.Type}}, bound to a specific deployed contract.
+    func New{{.Type}}Transactor(address common.Address, transactor bind.ContractTransactor) (*{{.Type}}Transactor, error) {
+        contract, err := bind{{.Type}}(address, nil, transactor, nil)
+        if err != nil {
+            return nil, err
+        }
+        return &{{.Type}}Transactor{contract: contract}, nil
+    }
+
+    // Transfer initiates a plain transaction to move funds to the contract, calling
+    // its default method if one is available.
+    func (_{{.Type}} *{{.Type}}TransactorRaw) Transfer(opts *bind.TransactOpts) (*klayTypes.Transaction, error) {
+        return _{{.Type}}.Contract.contract.Transfer(opts)
+    }
+
+    // Transact invokes the (paid) contract method with params as input values.
+    func (_{{.Type}} *{{.Type}}TransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*klayTypes.Transaction, error) {
+        return _{{.Type}}.Contract.contract.Transact(opts, method, params...)
+    }
+{{end}}
+
+{{define "ContractFilterer"}}
+    // {{.Type}}Filterer is an auto generated log filtering Go binding around an Ethereum contract events.
+    type {{.Type}}Filterer struct {
+        contract *bind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    // New{{.Type}}Filterer creates a new log filterer instance of {{.Type}}, bound to a specific deployed contract.
+    func New{{.Type}}Filterer(address common.Address, filterer bind.ContractFilterer) (*{{.Type}}Filterer, error) {
+        contract, err := bind{{.Type}}(address, nil, nil, filterer)
+        if err != nil {
+            return nil, err
+        }
+        return &{{.Type}}Filterer{contract: contract}, nil
+    }
+{{end}}
+
+{{define "ContractManager"}}{{$contract := .}}
+    //go:generate mockgen -source {{toSnakeCase .Type}}.go -destination ./mocks/mock_{{toSnakeCase .Type}}.go -package mocks I{{.Type}}Manager,I{{.Type}}Contract
+    type I{{.Type}}Manager interface {
+        Address() common.Address
+        TxHash() common.Hash
+        CreatedAt() *big.Int
+
+        // Call methods
+        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
+        {{end}}
+        // Transact methods
+        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) ({{if gt (len .Normalized.Outputs) 0}}{{.OutputArgs}},{{end}} error)
+        {{end}}
+        {{range .Events}}
+            Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error)
+            Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error)
+        {{end}} }
+
+    type I{{.Type}}Contract interface {
+        Address() common.Address
+        TxHash() common.Hash
+        CreatedAt() *big.Int
+
+        I{{.Type}}Calls
+        I{{.Type}}Transacts
+        I{{.Type}}Events
+    }
+
+    // Manager is contract wrapper struct
+    type {{.Type}}Contract struct {
+        client   blockchain.TxClient
+        contract *{{.Type}}
+        {{.Type}}Filterer
+    }
+
+    // Address is getter method of {{.Type}}.address
+    func (c *{{.Type}}Contract) Address() common.Address {
+        return c.contract.Address()
+    }
+
+    // TxHash is getter method of {{.Type}}.txHash
+    func (c *{{.Type}}Contract) TxHash() common.Hash {
+        return c.contract.TxHash()
+    }
+
+    // CreatedAt is getter method of {{.Type}}.createdAt
+    func (c *{{.Type}}Contract) CreatedAt() *big.Int {
+        return c.contract.CreatedAt()
+    }
+
+    // NewManager makes new *Manager struct
+    func New{{.Type}}Contract(client blockchain.TxClient) I{{.Type}}Contract {
+        contract := client.GetContract(&{{.Type}}{}).(*{{.Type}})
+        return &{{.Type}}Contract{
+            client:   client,
+            contract: contract,
+            {{.Type}}Filterer: contract.{{.Type}}Filterer,
+        }
+    }
+{{end}}
+
+{{define "Contracts"}}
+    {{template "ContractPrimitives" .Contract}}
+    {{template "ContractCaller" .Contract}}
+    {{template "ContractTransactor" .Contract}}
+    {{template "ContractFilterer" .Contract}}
+    {{template "ContractManager" .Contract}}
+
+    // convenient hacks for blockchain.Client
+    func init() {
+        blockchain.AddContractConstructor("{{.Contract.Type}}", (&{{.Contract.Type}}{}).new)
+        {{range .Contract.Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
+        {{end}}}
+
+    func (_{{.Contract.Type}} *{{.Contract.Type}}) new(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (interface{}, error) {
+        return New{{.Contract.Type}}(address, txHash, createdAt, backend)
+    }
+
+    {{template "MethodCalls" .Contract}}
+    {{template "MethodTransacts" .Contract}}
+    {{template "Events" .Contract}}
+{{end}}
