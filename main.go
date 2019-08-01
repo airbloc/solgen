@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/frostornge/solgen/deployment"
 	"github.com/frostornge/solgen/ethereum"
+	"github.com/frostornge/solgen/klaytn"
 	"github.com/frostornge/solgen/proto"
 	"github.com/spf13/cobra"
 )
@@ -24,9 +25,15 @@ var (
 	}
 )
 
+const (
+	BindTypeEth   = "eth"
+	BindTypeKlay  = "klay"
+	BindTypeProto = "proto"
+)
+
 func init() {
 	rflags := rootCmd.PersistentFlags()
-	rflags.StringVarP(&rootFlags.typeFlag, "type", "t", "go", "Bind type")
+	rflags.StringVarP(&rootFlags.typeFlag, "type", "t", BindTypeEth, "Bind type")
 	rflags.StringVarP(&rootFlags.inputPath, "input", "i", "http://localhost:8500", "Input path")
 	rflags.StringVarP(&rootFlags.outputPath, "output", "o", "./out/", "Output path")
 	rflags.StringVarP(&rootFlags.optionPath, "option", "p", "./option.json", "Option path")
@@ -46,7 +53,7 @@ func run() func(*cobra.Command, []string) {
 		}
 
 		switch rootFlags.typeFlag {
-		case "go":
+		case BindTypeEth:
 			opts, err := ethereum.GetOption(rootFlags.optionPath)
 			if err != nil {
 				panic(err)
@@ -55,7 +62,16 @@ func run() func(*cobra.Command, []string) {
 			if err := ethereum.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
 				panic(err)
 			}
-		case "proto":
+		case BindTypeKlay:
+			opts, err := klaytn.GetOption(rootFlags.optionPath)
+			if err != nil {
+				panic(err)
+			}
+
+			if err := klaytn.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
+				panic(err)
+			}
+		case BindTypeProto:
 			if err := proto.GenerateBind(rootFlags.outputPath, deployments, proto.Options{}); err != nil {
 				panic(err)
 			}
