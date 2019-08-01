@@ -18,10 +18,12 @@ require (
 	github.com/howeyc/fsnotify v0.9.0 // indirect
 	github.com/influxdata/influxdb v1.7.7 // indirect
 	github.com/karalabe/usb v0.0.0-20190703133951-9be757f914c0 // indirect
+	github.com/klaytn/klaytn v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/oschwald/maxminddb-golang v1.3.1 // indirect
+	github.com/pbnjay/memory v0.0.0-20190104145345-974d429e7ae4 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/prometheus/tsdb v0.9.1 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
@@ -33,6 +35,9 @@ require (
 	github.com/tyler-smith/go-bip39 v1.0.0 // indirect
 	github.com/valyala/fastjson v1.4.1
 	github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208 // indirect
+	go.uber.org/atomic v1.4.0 // indirect
+	go.uber.org/multierr v1.1.0 // indirect
+	go.uber.org/zap v1.10.0 // indirect
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20190709231704-1e4459ed25ff // indirect
 )
