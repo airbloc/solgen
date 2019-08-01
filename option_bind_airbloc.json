@@ -7,7 +7,7 @@
     "bytes32":"common.Hash"
   },
   "Accounts":{"(address,uint8,address,address)":"types.Account"},
-  "AppRegistry":{"(string,address,bytes32)":"types.App"},
+  "AppRegistry":{"(string,address,address)":"types.App"},
   "ControllerRegistry":{"(address,uint256)":"types.DataController"},
   "DataTypeRegistry":{"(string,address,bytes32)":"types.DataType"},
   "Exchange":{"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)":"types.Offer"}

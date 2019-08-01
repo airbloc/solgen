@@ -1,4 +1,9 @@
 {{define "Events"}}{{$contract := .}}
+    type I{{.Type}}Events interface { {{range .Events}}
+            Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error)
+            Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error)
+            Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error)
+    {{end}} }
 {{range .Events}}
     // {{$contract.Type}}{{.Normalized.Name}}Iterator is returned from Filter{{.Normalized.Name}} and is used to iterate over the raw logs and unpacked data for {{.Normalized.Name}} events raised by the {{$contract.Type}} contract.
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {

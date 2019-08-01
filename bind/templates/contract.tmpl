@@ -4,10 +4,27 @@
 
     // {{.Type}} is an auto generated Go binding around an Ethereum contract.
     type {{.Type}} struct {
-        Address common.Address
+        address common.Address
+        txHash common.Hash
+        createdAt *big.Int
         {{.Type}}Caller     	// Read-only binding to the contract
         {{.Type}}Transactor 	// Write-only binding to the contract
         {{.Type}}Filterer   	// Log filterer for contract events
+    }
+
+    // Address is getter method of {{.Type}}.address
+    func (_{{.Type}} *{{.Type}}) Address() common.Address {
+        return _{{.Type}}.address
+    }
+
+    // TxHash is getter method of {{.Type}}.txHash
+    func (_{{.Type}} *{{.Type}}) TxHash() common.Hash {
+        return _{{.Type}}.txHash
+    }
+
+    // CreatedAt is getter method of {{.Type}}.createdAt
+    func (_{{.Type}} *{{.Type}}) CreatedAt() *big.Int {
+        return _{{.Type}}.createdAt
     }
 
     // {{.Type}}Session is an auto generated Go binding around an Ethereum contract,
@@ -24,17 +41,28 @@
     }
 
     // New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
-    func New{{.Type}}(address common.Address, backend bind.ContractBackend) (*{{.Type}}, error) {
+    func New{{.Type}}(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (*{{.Type}}, error) {
         contract, err := bind{{.Type}}(address, backend, backend, backend)
         if err != nil {
             return nil, err
         }
         return &{{.Type}}{
-            Address: address,
+            address: address,
+            txHash: txHash,
+            createdAt: createdAt,
             {{.Type}}Caller: {{.Type}}Caller{contract: contract},
             {{.Type}}Transactor: {{.Type}}Transactor{contract: contract},
             {{.Type}}Filterer: {{.Type}}Filterer{contract: contract},
         }, nil
+    }
+
+    // bind{{.Type}} binds a generic wrapper to an already deployed contract.
+    func bind{{.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+        parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
+        if err != nil {
+            return nil, err
+        }
+        return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
     }
 
     // Call invokes the (constant) contract method with params as input values and
@@ -151,36 +179,60 @@
 {{define "ContractManager"}}{{$contract := .}}
     //go:generate mockgen -source {{toSnakeCase .Type}}.go -destination ./mocks/mock_{{toSnakeCase .Type}}.go -package mocks I{{.Type}}Manager,I{{.Type}}Contract
     type I{{.Type}}Manager interface {
+        Address() common.Address
+        TxHash() common.Hash
+        CreatedAt() *big.Int
+
         // Call methods
         {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
         {{end}}
         // Transact methods
         {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) ({{if gt (len .Normalized.Outputs) 0}}{{.OutputArgs}},{{end}} error)
-        {{end}}}
+        {{end}}
+        {{range .Events}}
+            Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error)
+            Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error)
+        {{end}} }
 
     type I{{.Type}}Contract interface {
-        // Call methods
-        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
-        {{end}}
-        // Transact methods
-        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error)
-        {{end}}
-        // Event parser
-        {{range .Events}}Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error)
-        {{end}}}
+        Address() common.Address
+        TxHash() common.Hash
+        CreatedAt() *big.Int
+
+        I{{.Type}}Calls
+        I{{.Type}}Transacts
+        I{{.Type}}Events
+    }
 
     // Manager is contract wrapper struct
     type {{.Type}}Contract struct {
         client   blockchain.TxClient
         contract *{{.Type}}
+        {{.Type}}Filterer
+    }
+
+    // Address is getter method of {{.Type}}.address
+    func (c *{{.Type}}Contract) Address() common.Address {
+        return c.contract.Address()
+    }
+
+    // TxHash is getter method of {{.Type}}.txHash
+    func (c *{{.Type}}Contract) TxHash() common.Hash {
+        return c.contract.TxHash()
+    }
+
+    // CreatedAt is getter method of {{.Type}}.createdAt
+    func (c *{{.Type}}Contract) CreatedAt() *big.Int {
+        return c.contract.CreatedAt()
     }
 
     // NewManager makes new *Manager struct
     func New{{.Type}}Contract(client blockchain.TxClient) I{{.Type}}Contract {
-        contract := client.GetContract(&{{.Type}}{})
-        return &{{.Type}}Manager{
+        contract := client.GetContract(&{{.Type}}{}).(*{{.Type}})
+        return &{{.Type}}Contract{
             client:   client,
-            contract: contract.(*{{.Type}}),
+            contract: contract,
+            {{.Type}}Filterer: contract.{{.Type}}Filterer,
         }
     }
 {{end}}
@@ -194,21 +246,12 @@
 
     // convenient hacks for blockchain.Client
     func init() {
-        blockchain.ContractList["{{.Contract.Type}}"] = (&{{.Contract.Type}}{}).new
+        blockchain.AddContractConstructor("{{.Contract.Type}}", (&{{.Contract.Type}}{}).new)
         {{range .Contract.Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
         {{end}}}
 
-    // bind{{.Contract.Type}} binds a generic wrapper to an already deployed contract.
-    func bind{{.Contract.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
-        parsed, err := abi.JSON(strings.NewReader({{.Contract.Type}}ABI))
-        if err != nil {
-            return nil, err
-        }
-        return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
-    }
-
-    func (_{{.Contract.Type}} *{{.Contract.Type}}) new(address common.Address, backend bind.ContractBackend) (interface{}, error) {
-        return New{{.Contract.Type}}(address, backend)
+    func (_{{.Contract.Type}} *{{.Contract.Type}}) new(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (interface{}, error) {
+        return New{{.Contract.Type}}(address, txHash, createdAt, backend)
     }
 
     {{template "MethodCalls" .Contract}}

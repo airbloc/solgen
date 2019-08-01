@@ -1,10 +1,13 @@
 {{define "MethodCalls"}}{{$contract := .}}
+    type I{{.Type}}Calls interface {
+        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
+    {{end}} }
 {{range $method := .Calls}}
     // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
     //
     // Solidity: {{.Original.String}}
-    func (manager *{{$contract.Type}}Contract) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
-        return manager.contract.{{.Normalized.Name}}(nil, {{.InputArgs false}})
+    func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error) {
+        return c.contract.{{.Normalized.Name}}(nil, {{.InputArgs false}})
     }
 
     // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.Id}}.
@@ -37,16 +40,19 @@
 {{end}}{{end}}
 
 {{define "MethodTransacts"}}{{$contract := .}}
+    type I{{.Type}}Transacts interface {
+        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error)
+    {{end}} }
 {{range .Transacts}}
     // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
     //
     // Solidity: {{.Original.String}}
-    func (manager *{{$contract.Type}}Contract) {{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error) {
-        tx, err := manager.contract.{{.Normalized.Name}}(manager.client.Account(), {{.InputArgs false}})
+    func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) (*ethTypes.Receipt, error) {
+        tx, err := c.contract.{{.Normalized.Name}}(c.client.Account(), {{.InputArgs false}})
         if err != nil {
             return nil, err
         }
-        return manager.client.WaitMined(ctx, tx)
+        return c.client.WaitMined(ctx, tx)
     }
 
     // {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.Id}}.
