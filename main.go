@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/frostornge/solgen/bind"
 	"github.com/frostornge/solgen/deployment"
+	"github.com/frostornge/solgen/ethereum"
 	"github.com/frostornge/solgen/proto"
 	"github.com/spf13/cobra"
 )
@@ -47,12 +47,12 @@ func run() func(*cobra.Command, []string) {
 
 		switch rootFlags.typeFlag {
 		case "go":
-			opts, err := bind.GetOption(rootFlags.optionPath)
+			opts, err := ethereum.GetOption(rootFlags.optionPath)
 			if err != nil {
 				panic(err)
 			}
 
-			if err := bind.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
+			if err := ethereum.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
 				panic(err)
 			}
 		case "proto":
