@@ -1,4 +1,4 @@
-package bind
+package ethereum
 
 import (
 	"os"
@@ -31,11 +31,11 @@ func TestGenerateBind(t *testing.T) {
 
 func TestGenerateBind_Airbloc(t *testing.T) {
 	assert.NoError(t, os.Chdir(".."))
-	assert.NoError(t, os.RemoveAll("./test/bind"))
+	assert.NoError(t, os.RemoveAll("./test/ethereum"))
 
 	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	assert.NoError(t, err)
-	assert.NoError(t, GenerateBind("./test/bind", deployments, Options{
+	assert.NoError(t, GenerateBind("./test/ethereum", deployments, Options{
 		"default": {
 			"bytes8":    "types.ID",
 			"bytes8[]":  "[]types.ID",

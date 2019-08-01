@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package bind
+package ethereum
 
 import (
 	"bytes"
@@ -34,7 +34,7 @@ type tmplData struct {
 	Contract *contract // List of contracts to generate into this file
 }
 
-const templatePath = "./bind/templates/*"
+const templatePath = "./ethereum/templates/*"
 
 func render(writer io.Writer, data *tmplData) error {
 	funcs := template.FuncMap{
