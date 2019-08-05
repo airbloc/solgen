@@ -198,6 +198,7 @@
         Address() common.Address
         TxHash() common.Hash
         CreatedAt() *big.Int
+        Filterer() {{.Type}}Filterer
 
         I{{.Type}}Calls
         I{{.Type}}Transacts
@@ -226,7 +227,12 @@
         return c.contract.CreatedAt()
     }
 
-    // NewManager makes new *Manager struct
+    // Filterer is getter method of {{.Type}}.{{.Type}}Filterer
+    func (c *{{.Type}}Contract) Filterer() {{.Type}}Filterer {
+        return c.{{.Type}}Filterer
+    }
+
+    // New{{.Type}}Contract makes new *{{.Type}}Contract struct
     func New{{.Type}}Contract(client blockchain.TxClient) I{{.Type}}Contract {
         contract := client.GetContract(&{{.Type}}{}).(*{{.Type}})
         return &{{.Type}}Contract{
