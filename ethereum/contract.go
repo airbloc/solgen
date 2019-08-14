@@ -2,6 +2,7 @@ package ethereum
 
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/frostornge/solgen/deployment"
 )
 
 type contract struct {
@@ -14,26 +15,25 @@ type contract struct {
 	Events      map[string]*event
 }
 
-func parseContract(evmABI abi.ABI, contractName string, typeOption option) (*contract, error) {
-	inputABI, err := stripABI(evmABI)
+func parseContract(abi deployment.Deployment, contractName string, typeOption option) (c *contract, err error) {
+	inputABI, err := stripABI(abi.RawABI)
 	if err != nil {
 		return nil, err
 	}
 
-	contract := &contract{
+	c = &contract{
 		Type:        capitalise(contractName),
 		TypeOption:  typeOption,
 		InputABI:    inputABI,
-		Constructor: evmABI.Constructor,
+		Constructor: abi.Constructor,
 		Calls:       make(map[string]*method),
 		Transacts:   make(map[string]*method),
-		Events:      parseEvents(evmABI),
+		Events:      parseEvents(abi.ABI),
 	}
 
-	contract.Calls, contract.Transacts, err = parseMethods(evmABI, typeOption)
+	c.Calls, c.Transacts, err = parseMethods(abi.ABI, typeOption)
 	if err != nil {
 		return nil, err
 	}
-
-	return contract, nil
+	return
 }

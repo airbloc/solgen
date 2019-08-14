@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/frostornge/solgen/deployment"
 	"github.com/frostornge/solgen/utils"
 )
@@ -17,11 +16,11 @@ type binder struct {
 	typeOptions  option
 }
 
-func (bind *binder) parseData(evmABI abi.ABI, pkg string) error {
+func (bind *binder) parseData(abi deployment.Deployment, pkg string) error {
 	log.SetFlags(log.Llongfile)
 
 	contract, err := parseContract(
-		evmABI,
+		abi,
 		bind.contractName,
 		bind.typeOptions,
 	)

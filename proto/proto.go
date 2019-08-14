@@ -20,7 +20,7 @@ type binder struct {
 func (bind *binder) parseContracts(deployments deployment.Deployments) {
 	for name, deployment := range deployments {
 		contract := &contract{typeOptions: bind.typeOptions, contractName: name}
-		contract.parseContract(deployment)
+		contract.parseContract(deployment.ABI)
 		bind.contracts = append(bind.contracts, *contract)
 	}
 }

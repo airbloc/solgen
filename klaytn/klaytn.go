@@ -56,7 +56,7 @@ func GenerateBind(path string, deployments deployment.Deployments, typeOptions O
 		opt.apply(typeOptions[contractName]) // override it
 
 		bind := &binder{contractName: contractName, typeOptions: opt}
-		if err := bind.parseData(contractAbi, "adapter"); err != nil {
+		if err := bind.parseData(contractAbi.ABI, "adapter"); err != nil {
 			return err
 		}
 

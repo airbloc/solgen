@@ -1,27 +1,20 @@
 package ethereum
 
 import (
-	"encoding/json"
 	"strings"
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-func stripABI(evmABI abi.ABI) (string, error) {
-	abiByte, err := json.Marshal(evmABI)
-	if err != nil {
-		return "", nil
-	}
-	abistr := string(abiByte)
-
+func stripABI(rawABI string) (string, error) {
 	// Strip any whitespace from the JSON ABI
 	strippedABI := strings.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
 			return -1
 		}
 		return r
-	}, abistr)
+	}, rawABI)
 
 	return strings.Replace(strippedABI, "\"", "\\\"", -1), nil
 }

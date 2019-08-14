@@ -10,7 +10,12 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-type Deployments map[string]abi.ABI
+type Deployment struct {
+	abi.ABI
+	RawABI string
+}
+
+type Deployments map[string]Deployment
 type rawData map[string]map[string]interface{}
 
 func parseDeployments(rawData rawData) (Deployments, error) {
@@ -23,7 +28,10 @@ func parseDeployments(rawData rawData) (Deployments, error) {
 			return nil, err
 		}
 
-		deployments[contractName] = parsedAbi
+		deployments[contractName] = Deployment{
+			ABI:    parsedAbi,
+			RawABI: string(rawAbi),
+		}
 	}
 
 	return deployments, nil
