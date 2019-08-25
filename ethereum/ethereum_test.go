@@ -43,11 +43,6 @@ func TestGenerateBind_Airbloc(t *testing.T) {
 			"bytes20[]": "[]types.DataId",
 			"bytes32":   "common.Hash",
 		},
-		//"imports": {
-		//	"blockchain": "github.com/airbloc/airbloc-go/shared/blockchain",
-		//	"bind":       "github.com/airbloc/airbloc-go/shared/blockchain/bind",
-		//	"types":      "github.com/airbloc/airbloc-go/shared/types",
-		//},
 		"Accounts":           {"(address,uint8,address,address)": "types.Account"},
 		"AppRegistry":        {"(string,address,address)": "types.App"},
 		"ControllerRegistry": {"(address,uint256)": "types.DataController"},

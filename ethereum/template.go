@@ -36,7 +36,7 @@ type tmplData struct {
 
 const templatePath = "./ethereum/templates/*"
 
-func render(writer io.Writer, data *tmplData) error {
+func render(writer io.Writer, path string, data *tmplData) error {
 	funcs := template.FuncMap{
 		"last": func(x int, a interface{}) bool {
 			return x == reflect.ValueOf(a).Len()-1
@@ -47,7 +47,7 @@ func render(writer io.Writer, data *tmplData) error {
 		"toSnakeCase":   utils.ToSnakeCase,
 	}
 
-	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(templatePath))
+	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(path))
 	if err := tmpl.ExecuteTemplate(writer, "Bind", data); err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func render(writer io.Writer, data *tmplData) error {
 
 func Render(data *tmplData) ([]byte, error) {
 	buffer := new(bytes.Buffer)
-	if err := render(buffer, data); err != nil {
+	if err := render(buffer, templatePath, data); err != nil {
 		return nil, err
 	}
 
