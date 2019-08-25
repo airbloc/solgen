@@ -5,32 +5,19 @@
 package {{.Package}}
 
 import (
-    "github.com/pkg/errors"
     "math/big"
     "strings"
 
+    "github.com/pkg/errors"
     "github.com/airbloc/airbloc-go/shared/blockchain"
-    "github.com/airbloc/airbloc-go/shared/blockchain/bind"
     "github.com/airbloc/airbloc-go/shared/types"
     "github.com/klaytn/klaytn/accounts/abi"
+    "github.com/klaytn/klaytn/accounts/abi/bind"
     "github.com/klaytn/klaytn/common"
     "github.com/klaytn/klaytn/event"
     klaytn "github.com/klaytn/klaytn"
-    klayTypes "github.com/klaytn/klaytn/core/types"
+    klayTypes "github.com/klaytn/klaytn/blockchain/types"
 )
 
-// Reference imports to suppress errors if they are not otherwise used.
-var (
-    _ = errors.New
-    _ = big.NewInt
-    _ = strings.NewReader
-    _ = klaytn.NotFound
-    _ = abi.U256
-    _ = bind.NewKeyedTransactor
-    _ = types.HexToID
-    _ = common.Big1
-    _ = klayTypes.BloomLookup
-    _ = event.NewSubscription
-)
 {{template "Contracts" .}}
 {{end}}

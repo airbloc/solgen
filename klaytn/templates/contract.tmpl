@@ -40,8 +40,7 @@
         Contract *{{.Type}} // Generic contract binding to access the raw methods on
     }
 
-    // New{{.Type}} creates a new instance of {{.Type}}, bound to a specific deployed contract.
-    func New{{.Type}}(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (*{{.Type}}, error) {
+    func new{{.Type}}(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (*{{.Type}}, error) {
         contract, err := bind{{.Type}}(address, backend, backend, backend)
         if err != nil {
             return nil, err
@@ -176,73 +175,11 @@
     }
 {{end}}
 
-{{define "ContractManager"}}{{$contract := .}}
-    //go:generate mockgen -source {{toSnakeCase .Type}}.go -destination ./mocks/mock_{{toSnakeCase .Type}}.go -package mocks I{{.Type}}Manager,I{{.Type}}Contract
-    type I{{.Type}}Manager interface {
-        Address() common.Address
-        TxHash() common.Hash
-        CreatedAt() *big.Int
-
-        // Call methods
-        {{range .Calls}}{{.Normalized.Name}}({{.InputArgs true}}) ({{.OutputArgs}}, error)
-        {{end}}
-        // Transact methods
-        {{range .Transacts}}{{.Normalized.Name}}(ctx context.Context, {{.InputArgs true}}) ({{if gt (len .Normalized.Outputs) 0}}{{.OutputArgs}},{{end}} error)
-        {{end}}
-        {{range .Events}}
-            Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error)
-            Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error)
-        {{end}} }
-
-    type I{{.Type}}Contract interface {
-        Address() common.Address
-        TxHash() common.Hash
-        CreatedAt() *big.Int
-
-        I{{.Type}}Calls
-        I{{.Type}}Transacts
-        I{{.Type}}Events
-    }
-
-    // Manager is contract wrapper struct
-    type {{.Type}}Contract struct {
-        client   blockchain.TxClient
-        contract *{{.Type}}
-        {{.Type}}Filterer
-    }
-
-    // Address is getter method of {{.Type}}.address
-    func (c *{{.Type}}Contract) Address() common.Address {
-        return c.contract.Address()
-    }
-
-    // TxHash is getter method of {{.Type}}.txHash
-    func (c *{{.Type}}Contract) TxHash() common.Hash {
-        return c.contract.TxHash()
-    }
-
-    // CreatedAt is getter method of {{.Type}}.createdAt
-    func (c *{{.Type}}Contract) CreatedAt() *big.Int {
-        return c.contract.CreatedAt()
-    }
-
-    // NewManager makes new *Manager struct
-    func New{{.Type}}Contract(client blockchain.TxClient) I{{.Type}}Contract {
-        contract := client.GetContract(&{{.Type}}{}).(*{{.Type}})
-        return &{{.Type}}Contract{
-            client:   client,
-            contract: contract,
-            {{.Type}}Filterer: contract.{{.Type}}Filterer,
-        }
-    }
-{{end}}
-
 {{define "Contracts"}}
     {{template "ContractPrimitives" .Contract}}
     {{template "ContractCaller" .Contract}}
     {{template "ContractTransactor" .Contract}}
     {{template "ContractFilterer" .Contract}}
-    {{template "ContractManager" .Contract}}
 
     // convenient hacks for blockchain.Client
     func init() {
@@ -251,7 +188,7 @@
         {{end}}}
 
     func (_{{.Contract.Type}} *{{.Contract.Type}}) new(address common.Address, txHash common.Hash, createdAt *big.Int, backend bind.ContractBackend) (interface{}, error) {
-        return New{{.Contract.Type}}(address, txHash, createdAt, backend)
+        return new{{.Contract.Type}}Contract(address, txHash, createdAt, backend)
     }
 
     {{template "MethodCalls" .Contract}}
