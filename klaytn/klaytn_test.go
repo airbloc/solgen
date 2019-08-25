@@ -31,7 +31,7 @@ func TestGenerateBind(t *testing.T) {
 
 func TestGenerateBind_Airbloc(t *testing.T) {
 	assert.NoError(t, os.Chdir(".."))
-	assert.NoError(t, os.RemoveAll("./test/bind"))
+	assert.NoError(t, os.RemoveAll("./test/klaytn"))
 
 	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	assert.NoError(t, err)
@@ -46,6 +46,7 @@ func TestGenerateBind_Airbloc(t *testing.T) {
 		"Accounts":           {"(address,uint8,address,address)": "types.Account"},
 		"AppRegistry":        {"(string,address,address)": "types.App"},
 		"ControllerRegistry": {"(address,uint256)": "types.DataController"},
+		"Consents":           {"(uint8,string,bool)": "types.ConsentData", "(uint8,string,bool)[]": "[]types.ConsentData"},
 		"DataTypeRegistry":   {"(string,address,bytes32)": "types.DataType"},
 		"Exchange":           {"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer"},
 	}))

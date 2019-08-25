@@ -22,6 +22,7 @@ import (
 	"go/format"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"text/template"
 
@@ -36,7 +37,7 @@ type tmplData struct {
 
 const templatePath = "./klaytn/templates/*"
 
-func render(writer io.Writer, data *tmplData) error {
+func render(writer io.Writer, name string, data *tmplData) error {
 	funcs := template.FuncMap{
 		"last": func(x int, a interface{}) bool {
 			return x == reflect.ValueOf(a).Len()-1
@@ -47,45 +48,72 @@ func render(writer io.Writer, data *tmplData) error {
 		"toSnakeCase":   utils.ToSnakeCase,
 	}
 
-	tmpl := template.Must(template.New("Bind").Funcs(funcs).ParseGlob(templatePath))
-	if err := tmpl.ExecuteTemplate(writer, "Bind", data); err != nil {
+	tmpl := template.Must(template.New(name).Funcs(funcs).ParseGlob(templatePath))
+	if err := tmpl.ExecuteTemplate(writer, name, data); err != nil {
 		return err
 	}
+
 	return nil
 }
 
-func Render(data *tmplData) ([]byte, error) {
-	buffer := new(bytes.Buffer)
-	if err := render(buffer, data); err != nil {
-		return nil, err
-	}
-
-	// For Go bindings pass the code through gofmt to clean it up
-	code, err := format.Source(buffer.Bytes())
-	if err != nil {
-		return []byte{}, fmt.Errorf("%v\n%s", err, buffer)
-	}
-	return code, nil
-}
-
-func RenderFile(path string, data *tmplData) error {
-	var out *os.File
+func getFile(path string) (out *os.File, err error) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		out, err = os.Create(path)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	} else {
 		out, err = os.OpenFile(path, os.O_WRONLY, os.ModePerm)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
+	return out, nil
+}
 
-	if data, err := Render(data); err != nil {
+func Render(data *tmplData) ([]byte, []byte, error) {
+	bindBuf := new(bytes.Buffer)
+	if err := render(bindBuf, "Bind", data); err != nil {
+		return nil, nil, err
+	}
+
+	wrapperBuf := new(bytes.Buffer)
+	if err := render(wrapperBuf, "Wrapper", data); err != nil {
+		return nil, nil, err
+	}
+
+	// For Go bindings pass the code through gofmt to clean it up
+	bindCode, err := format.Source(bindBuf.Bytes())
+	if err != nil {
+		return nil, nil, fmt.Errorf("%v\n%s", err, bindBuf)
+	}
+
+	wrapperCode, err := format.Source(wrapperBuf.Bytes())
+	if err != nil {
+		return nil, nil, fmt.Errorf("%v\n%s", err, bindBuf)
+	}
+
+	return bindCode, wrapperCode, nil
+}
+
+func RenderFile(path, contractName string, data *tmplData) error {
+	bind, err := getFile(filepath.Join(path, contractName+".go"))
+	if err != nil {
+		return err
+	}
+
+	wrapper, err := getFile(filepath.Join(path, contractName+"_wrapper.go"))
+	if err != nil {
+		return err
+	}
+
+	if bindCode, wrapperCode, err := Render(data); err != nil {
 		return err
 	} else {
-		if _, err = out.Write(data); err != nil {
+		if _, err = bind.Write(bindCode); err != nil {
+			return err
+		}
+		if _, err = wrapper.Write(wrapperCode); err != nil {
 			return err
 		}
 	}

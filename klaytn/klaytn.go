@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/frostornge/solgen/deployment"
@@ -60,8 +59,7 @@ func GenerateBind(path string, deployments deployment.Deployments, typeOptions O
 			return err
 		}
 
-		file := filepath.Join(path, utils.ToSnakeCase(contractName)+".go")
-		if err = RenderFile(file, bind.data); err != nil {
+		if err = RenderFile(path, utils.ToSnakeCase(contractName), bind.data); err != nil {
 			return err
 		}
 	}
