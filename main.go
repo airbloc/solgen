@@ -3,10 +3,10 @@ package main
 import (
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/frostornge/solgen/bind"
 	"github.com/frostornge/solgen/deployment"
 	"github.com/frostornge/solgen/klaytn"
 	"github.com/frostornge/solgen/proto"
@@ -84,20 +84,29 @@ func main() {
 	}
 
 	for name, contract := range contracts {
-		name = utils.ToSnakeCase(name)
-		abiPath, _ := filepath.Abs(filepath.Join(tmp, name+".abi"))
-		outPath, _ := filepath.Abs(filepath.Join("./test", "bind", name+".go"))
+		// If the entire solidity code was specified, build and bind based on that
+		var (
+			abis  []string
+			bins  []string
+			types []string
+			sigs  []map[string]string
+			libs  = make(map[string]string)
+		)
+
+		filename := utils.ToSnakeCase(name)
+		abiPath, _ := filepath.Abs(filepath.Join(tmp, filename+".abi"))
+		outPath, _ := filepath.Abs(filepath.Join("./test", "bind", filename+".go"))
 		abi := strings.NewReader(contract.RawABI)
 		if err := writeFile(abiPath, outPath, abi); err != nil {
 			panic(err)
 		}
 
-		cmd := exec.Command("abigen", "--abi="+abiPath, "--pkg=adapter", "--out="+outPath)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
+		// Generate the contract binding
+		code, err := bind.Bind(abi, "adapter", bind.LangGo)
+		if err != nil {
 			panic(err)
 		}
+		print(code)
 	}
 
 	//if err := rootCmd.Execute(); err != nil {
