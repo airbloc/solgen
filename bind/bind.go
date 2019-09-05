@@ -25,13 +25,15 @@ import (
 	"errors"
 	"fmt"
 	"go/format"
+	"log"
+	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/ethereum/go-ethereum/log"
 )
 
 // Lang is a target programming language selector to generate bindings for.
@@ -47,7 +49,7 @@ const (
 // to be used as is in client code, but rather as an intermediate struct which
 // enforces compile time type safety and naming convention opposed to having to
 // manually maintain hard coded strings that break on runtime.
-func Bind(types []string, abis []string, bytecodes []string, fsigs []map[string]string, pkg string, lang Lang, libs map[string]string) (string, error) {
+func Bind(abi abi.ABI, pkg string, lang Lang) (string, error) {
 	// Process each individual contract requested binding
 	contracts := make(map[string]*tmplContract)
 
@@ -158,7 +160,7 @@ func Bind(types []string, abis []string, bytecodes []string, fsigs []map[string]
 		for pattern, name := range libs {
 			matched, err := regexp.Match("__\\$"+pattern+"\\$__", []byte(contracts[types[i]].InputBin))
 			if err != nil {
-				log.Error("Could not search for pattern", "pattern", pattern, "contract", contracts[types[i]], "err", err)
+				log.Println("Could not search for pattern", "pattern", pattern, "contract", contracts[types[i]], "err", err)
 			}
 			if matched {
 				contracts[types[i]].Libraries[pattern] = name
@@ -177,7 +179,7 @@ func Bind(types []string, abis []string, bytecodes []string, fsigs []map[string]
 	// Generate the contract template data content and render it
 	data := &tmplData{
 		Package:   pkg,
-		Contracts: contracts,
+		Contract: ,
 		Libraries: libs,
 	}
 	buffer := new(bytes.Buffer)
@@ -191,8 +193,15 @@ func Bind(types []string, abis []string, bytecodes []string, fsigs []map[string]
 		"capitalise":    capitalise,
 		"decapitalise":  decapitalise,
 	}
-	tmpl := template.Must(template.New("").Funcs(funcs).Parse(tmplSource[lang]))
-	if err := tmpl.Execute(buffer, data); err != nil {
+
+	templatePath, err := filepath.Abs(path.Join("./bind", "templates", tmplSource[lang], "*"))
+	if err != nil {
+		return "", err
+	}
+
+	// generate contract bind
+	tmpl := template.Must(template.New("contract").Funcs(funcs).ParseGlob(templatePath))
+	if err := tmpl.ExecuteTemplate(buffer, "contract", data); err != nil {
 		return "", err
 	}
 	// For Go bindings pass the code through gofmt to clean it up
