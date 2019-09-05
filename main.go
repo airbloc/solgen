@@ -1,10 +1,16 @@
 package main
 
 import (
+	"io"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+
 	"github.com/frostornge/solgen/deployment"
-	"github.com/frostornge/solgen/ethereum"
 	"github.com/frostornge/solgen/klaytn"
 	"github.com/frostornge/solgen/proto"
+	"github.com/frostornge/solgen/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -26,23 +32,77 @@ var (
 )
 
 const (
-	BindTypeEth   = "eth"
 	BindTypeKlay  = "klay"
 	BindTypeProto = "proto"
 )
 
 func init() {
 	rflags := rootCmd.PersistentFlags()
-	rflags.StringVarP(&rootFlags.typeFlag, "type", "t", BindTypeEth, "Bind type")
+	rflags.StringVarP(&rootFlags.typeFlag, "type", "t", BindTypeKlay, "Bind type")
 	rflags.StringVarP(&rootFlags.inputPath, "input", "i", "http://localhost:8500", "Input path")
 	rflags.StringVarP(&rootFlags.outputPath, "output", "o", "./out/", "Output path")
 	rflags.StringVarP(&rootFlags.optionPath, "option", "p", "./option.json", "Option path")
 }
 
+func openFile(path string) (*os.File, error) {
+	file, err := os.OpenFile(path, os.O_WRONLY, os.ModePerm)
+	if os.IsNotExist(err) {
+		file, err = os.Create(path)
+		if err != nil {
+			return nil, err
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	return file, nil
+}
+
+func writeFile(abiPath string, outPath string, abi io.Reader) (err error) {
+	if _, err := openFile(outPath); err != nil {
+		return err
+	}
+
+	file, err := openFile(abiPath)
+	if err != nil {
+		return err
+	}
+	defer func() { err = file.Close() }()
+
+	if _, err := io.Copy(file, abi); err != nil {
+		return err
+	}
+	return
+}
+
 func main() {
-	if err := rootCmd.Execute(); err != nil {
+	tmp := os.TempDir()
+
+	contracts, err := deployment.GetDeploymentsFrom("http://localhost:8500")
+	if err != nil {
 		panic(err)
 	}
+
+	for name, contract := range contracts {
+		name = utils.ToSnakeCase(name)
+		abiPath, _ := filepath.Abs(filepath.Join(tmp, name+".abi"))
+		outPath, _ := filepath.Abs(filepath.Join("./test", "bind", name+".go"))
+		abi := strings.NewReader(contract.RawABI)
+		if err := writeFile(abiPath, outPath, abi); err != nil {
+			panic(err)
+		}
+
+		cmd := exec.Command("abigen", "--abi="+abiPath, "--pkg=adapter", "--out="+outPath)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			panic(err)
+		}
+	}
+
+	//if err := rootCmd.Execute(); err != nil {
+	//	panic(err)
+	//}
 }
 
 func run() func(*cobra.Command, []string) {
@@ -53,15 +113,6 @@ func run() func(*cobra.Command, []string) {
 		}
 
 		switch rootFlags.typeFlag {
-		case BindTypeEth:
-			opts, err := ethereum.GetOption(rootFlags.optionPath)
-			if err != nil {
-				panic(err)
-			}
-
-			if err := ethereum.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
-				panic(err)
-			}
 		case BindTypeKlay:
 			opts, err := klaytn.GetOption(rootFlags.optionPath)
 			if err != nil {

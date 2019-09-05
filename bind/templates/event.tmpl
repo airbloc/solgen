@@ -1,9 +1,4 @@
-{{define "Events"}}{{$contract := .}}
-    type I{{.Type}}Events interface { {{range .Events}}
-            Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error)
-            Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error)
-            Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error)
-    {{end}} }
+{{define "Events"}}{{$contract := .}}{{$structs := .Structs}}
 {{range .Events}}
     // {{$contract.Type}}{{.Normalized.Name}}Iterator is returned from Filter{{.Normalized.Name}} and is used to iterate over the raw logs and unpacked data for {{.Normalized.Name}} events raised by the {{$contract.Type}} contract.
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {
@@ -12,12 +7,11 @@
         contract *bind.BoundContract // Generic contract to use for unpacking event data
         event    string              // Event name to use for unpacking event data
 
-        logs chan ethTypes.Log        // Log channel receiving the found contract events
+        logs chan types.Log        // Log channel receiving the found contract events
         sub  ethereum.Subscription // Subscription for errors, completion and termination
         done bool                  // Whether the subscription completed delivering logs
         fail error                 // Occurred error to stop iteration
     }
-
     // Next advances the iterator to the subsequent event, returning whether there
     // are any more events found. In case of a retrieval or parsing error, false is
     // returned and Error() can be queried for the exact failure.
@@ -32,7 +26,7 @@
             case log := <-it.logs:
                 it.Event = new({{$contract.Type}}{{.Normalized.Name}})
                 if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
-                it.fail = err
+                    it.fail = err
                     return false
                 }
                 it.Event.Raw = log
@@ -59,7 +53,6 @@
             return it.Next()
         }
     }
-
     // Error returns any retrieval or parsing error occurred during filtering.
     func (it *{{$contract.Type}}{{.Normalized.Name}}Iterator) Error() error {
         return it.fail
@@ -73,14 +66,14 @@
 
     // {{$contract.Type}}{{.Normalized.Name}} represents a {{.Normalized.Name}} event raised by the {{$contract.Type}} contract.
     type {{$contract.Type}}{{.Normalized.Name}} struct { {{range .Normalized.Inputs}}
-        {{capitalise .Name}} {{if .Indexed}}{{bindTopicType .Type $contract.TypeOption}}{{else}}{{bindType .Type $contract.TypeOption}}{{end}}; {{end}}
-        Raw ethTypes.Log // Blockchain specific contextual infos
+        {{capitalise .Name}} {{if .Indexed}}{{bindtopictype .Type $structs}}{{else}}{{bindtype .Type $structs}}{{end}}; {{end}}
+        Raw types.Log // Blockchain specific contextual infos
     }
 
-    // Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.Id}}.
+    // Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
     //
-    // Solidity: {{.Original.String}}
-    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error) {
+    // Solidity: {{formatevent .Original $structs}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error) {
         {{range .Normalized.Inputs}}
         {{if .Indexed}}var {{.Name}}Rule []interface{}
         for _, {{.Name}}Item := range {{.Name}} {
@@ -94,33 +87,10 @@
         return &{{$contract.Type}}{{.Normalized.Name}}Iterator{contract: _{{$contract.Type}}.contract, event: "{{.Original.Name}}", logs: logs, sub: sub}, nil
     }
 
-    // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
+    // Watch{{.Normalized.Name}} is a free log subscription operation binding the contract event 0x{{printf "%x" .Original.ID}}.
     //
-    // Solidity: {{.Original.String}}
-    func (manager *{{$contract.Type}}Contract) Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
-        return manager.contract.Parse{{.Normalized.Name}}FromReceipt(receipt)
-    }
-
-    // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
-    //
-    // Solidity: {{.Original.String}}
-    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}FromReceipt(receipt *ethTypes.Receipt) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
-        for _, log := range receipt.Logs {
-            if log.Topics[0] == common.HexToHash("0x{{printf "%x" .Original.Id}}") {
-                event := new({{$contract.Type}}{{.Normalized.Name}})
-                if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Original.Name}}", *log); err != nil {
-                    return nil, err
-                }
-                return event, nil
-            }
-        }
-        return nil, errors.New("{{.Original.Name}} event not found")
-    }
-
-    // Watch{{.Normalized.Name}} is a free log subscription operation binding the contract event 0x{{printf "%x" .Original.Id}}.
-    //
-    // Solidity: {{.Original.String}}
-    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindType .Type $contract.TypeOption}}{{end}}{{end}}) (event.Subscription, error) {
+    // Solidity: {{formatevent .Original $structs}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Watch{{.Normalized.Name}}(opts *bind.WatchOpts, sink chan<- *{{$contract.Type}}{{.Normalized.Name}}{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (event.Subscription, error) {
         {{range .Normalized.Inputs}}
         {{if .Indexed}}var {{.Name}}Rule []interface{}
         for _, {{.Name}}Item := range {{.Name}} {
@@ -144,11 +114,11 @@
                     event.Raw = log
 
                     select {
-                        case sink <- event:
-                        case err := <-sub.Err():
-                            return err
-                        case <-quit:
-                            return nil
+                    case sink <- event:
+                    case err := <-sub.Err():
+                        return err
+                    case <-quit:
+                        return nil
                     }
                 case err := <-sub.Err():
                     return err
@@ -158,4 +128,37 @@
             }
         }), nil
     }
+
+    // Parse{{.Normalized.Name}} is a log parse operation binding the contract event 0x{{printf "%x" .Original.ID}}.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}(log types.Log) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
+        event := new({{$contract.Type}}{{.Normalized.Name}})
+        if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Original.Name}}", log); err != nil {
+            return nil, err
+        }
+        return event, nil
+    }
+
+    // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
+    //
+    // Solidity: {{.Original.String}}
+    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}FromReceipt(receipt *klayTypes.Receipt) ([]*{{$contract.Type}}{{.Normalized.Name}}, error) {
+        var events []*{{$contract.Type}}{{.Normalized.Name}}
+        for _, log := range receipt.Logs {
+            if log.Topics[0] == common.HexToHash("0x{{printf "%x" .Original.Id}}") {
+                event, err := _{{$contract.Type}}.Parse{{.Normalized.Name}}(log)
+                if err != nil {
+                    return nil, err
+                }
+                event = append(events, event)
+            }
+        }
+
+        if len(events) == 0 {
+            return nil, errors.New("{{.Original.Name}} event not found")
+        }
+        return events, nil
+    }
+
 {{end}}{{end}}

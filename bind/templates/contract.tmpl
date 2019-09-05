@@ -1,0 +1,82 @@
+// Code generated - DO NOT EDIT.
+// This file is a generated binding and any manual changes will be lost.
+
+package {{.Package}}
+
+import (
+    "math/big"
+    "strings"
+
+    ethereum "github.com/ethereum/go-ethereum"
+    "github.com/ethereum/go-ethereum/accounts/abi"
+    "github.com/ethereum/go-ethereum/accounts/abi/bind"
+    "github.com/ethereum/go-ethereum/common"
+    "github.com/ethereum/go-ethereum/core/types"
+    "github.com/ethereum/go-ethereum/event"
+)
+
+{{$contract := .}}
+{{$structs := .Structs}}
+// {{.Type}}ABI is the input ABI used to generate the binding from.
+const {{.Type}}ABI = "{{.InputABI}}"
+
+{{if $contract.FuncSigs}}
+    // {{.Type}}FuncSigs maps the 4-byte function signature to its string representation.
+    var {{.Type}}FuncSigs = map[string]string{
+        {{range $strsig, $binsig := .FuncSigs}}"{{$binsig}}": "{{$strsig}}",
+        {{end}}
+    }
+{{end}}
+
+{{if .InputBin}}
+    // {{.Type}}Bin is the compiled bytecode used for deploying new contracts.
+    var {{.Type}}Bin = "0x{{.InputBin}}"
+
+    // Deploy{{.Type}} deploys a new Ethereum contract, binding an instance of {{.Type}} to it.
+    func Deploy{{.Type}}(auth *bind.TransactOpts, backend bind.ContractBackend {{range .Constructor.Inputs}}, {{.Name}} {{bindtype .Type $structs}}{{end}}) (common.Address, *types.Transaction, *{{.Type}}, error) {
+        parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
+        if err != nil {
+        return common.Address{}, nil, nil, err
+        }
+        {{range $pattern, $name := .Libraries}}
+        {{decapitalise $name}}Addr, _, _, _ := Deploy{{capitalise $name}}(auth, backend)
+        {{$contract.Type}}Bin = strings.Replace({{$contract.Type}}Bin, "__${{$pattern}}$__", {{decapitalise $name}}Addr.String()[2:], -1)
+        {{end}}
+        address, tx, contract, err := bind.DeployContract(auth, parsed, common.FromHex({{.Type}}Bin), backend {{range .Constructor.Inputs}}, {{.Name}}{{end}})
+        if err != nil {
+        return common.Address{}, nil, nil, err
+        }
+        return address, tx, &{{.Type}}{ {{.Type}}Caller: {{.Type}}Caller{contract: contract}, {{.Type}}Transactor: {{.Type}}Transactor{contract: contract}, {{.Type}}Filterer: {{.Type}}Filterer{contract: contract} }, nil
+    }
+{{end}}
+
+{{template "PrimitiveContract" . }}
+{{template "PrimitiveSession" . }}
+{{template "PrimitiveRaw" . }}
+
+// convenient hacks for blockchain.Client
+func init() {
+    blockchain.AddContractConstructor("{{.Contract.Type}}", (&{{.Contract.Type}}{}).new)
+    {{range .Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.Id}}", "{{.Original.Sig}}")
+    {{end}}}
+
+// bind{{.Type}} binds a generic wrapper to an already deployed contract.
+func bind{{.Type}}(address common.Address, caller bind.ContractCaller, transactor bind.ContractTransactor, filterer bind.ContractFilterer) (*bind.BoundContract, error) {
+    parsed, err := abi.JSON(strings.NewReader({{.Type}}ABI))
+    if err != nil {
+        return nil, err
+    }
+    return bind.NewBoundContract(address, parsed, caller, transactor, filterer), nil
+}
+
+{{range .Structs}}
+    // {{.Name}} is an auto generated low-level Go binding around an user-defined struct.
+    type {{.Name}} struct {
+    {{range $field := .Fields}}
+    {{$field.Name}} {{$field.Type}}{{end}}
+    }
+{{end}}
+
+{{template "MethodCalls" . }}
+{{template "MethodTransacts" . }}
+{{template "Events" . }}
