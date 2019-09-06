@@ -1,14 +1,12 @@
 package main
 
 import (
-	"io"
 	"os"
+	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/frostornge/solgen/bind"
 	"github.com/frostornge/solgen/deployment"
-	"github.com/frostornge/solgen/klaytn"
 	"github.com/frostornge/solgen/proto"
 	"github.com/frostornge/solgen/utils"
 	"github.com/spf13/cobra"
@@ -58,55 +56,130 @@ func openFile(path string) (*os.File, error) {
 	return file, nil
 }
 
-func writeFile(abiPath string, outPath string, abi io.Reader) (err error) {
-	if _, err := openFile(outPath); err != nil {
-		return err
-	}
-
-	file, err := openFile(abiPath)
+func writeFile(path, filename string, contract deployment.Deployment, option bind.Customs) error {
+	bindFile, err := openFile(filepath.Join(path, filename+".go"))
 	if err != nil {
 		return err
 	}
-	defer func() { err = file.Close() }()
+	defer bindFile.Close()
 
-	if _, err := io.Copy(file, abi); err != nil {
+	wrapFile, err := openFile(filepath.Join(path, filename+"_wrapper.go"))
+	if err != nil {
 		return err
 	}
-	return
+	defer wrapFile.Close()
+
+	// Generate the contract binding
+	if err := bind.Bind(
+		bindFile, wrapFile,
+		filename, contract.RawABI, "adapter",
+		option, bind.PlatformKlay, bind.LangGo,
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
-	tmp := os.TempDir()
-
 	contracts, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	if err != nil {
 		panic(err)
 	}
 
+	options := map[string]bind.Customs{
+		"Accounts": {
+			Structs: map[string]string{"(address,uint8,address,address)": "types.Account"},
+			Methods: map[string]bool{
+				"create":                     true,
+				"createTemporary":            true,
+				"unlockTemporary":            true,
+				"setController":              true,
+				"getAccount":                 true,
+				"getAccountByIdentityHash":   true,
+				"getAccountId":               true,
+				"getAccountIdByIdentityHash": true,
+				"getAccountIdFromSignature":  true,
+				"isTemporary":                true,
+				"isControllerOf":             true,
+				"exists":                     true,
+			},
+		},
+		"AppRegistry": {
+			Structs: map[string]string{"(string,address,address)": "types.App"},
+			Methods: map[string]bool{
+				"register":         true,
+				"unregister":       true,
+				"get":              true,
+				"exists":           true,
+				"isOwner":          true,
+				"transferAppOwner": true,
+			},
+		},
+		"ControllerRegistry": {
+			Structs: map[string]string{"(address,uint256)": "types.DataController"},
+			Methods: map[string]bool{
+				"register": true,
+				"get":      true,
+				"exists":   true,
+			},
+		},
+		"Consents": {
+			Structs: map[string]string{"(uint8,string,uint8)": "types.ConsentData", "(uint8,string,uint8)[]": "[]types.ConsentData"},
+			Methods: map[string]bool{
+				"consent":                       true,
+				"consentMany":                   true,
+				"consentByController":           true,
+				"consentManyByController":       true,
+				"modifyConsentByController":     true,
+				"modifyConsentManyByController": true,
+				"isAllowed":                     true,
+				"isAllowedAt":                   true,
+			},
+		},
+		"DataTypeRegistry": {
+			Structs: map[string]string{"(string,address,bytes32)": "types.DataType"},
+			Methods: map[string]bool{
+				"register":   true,
+				"unregister": true,
+				"get":        true,
+				"exists":     true,
+				"isOwner":    true,
+			},
+		},
+		"Exchange": {
+			Structs: map[string]string{
+				"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer",
+				"(address,bytes4,bytes)":                                                  "types.Escrow",
+			},
+			Methods: map[string]bool{
+				"prepare":         true,
+				"addDataIds":      true,
+				"order":           true,
+				"cancel":          true,
+				"settle":          true,
+				"reject":          true,
+				"offerExists":     true,
+				"getOffer":        true,
+				"getOfferMembers": true,
+			},
+		},
+	}
+
+	if err := os.RemoveAll("./test/bind"); err != nil {
+		panic(err)
+	}
+
+	if err := os.MkdirAll("./test/bind", os.ModePerm); err != nil {
+		panic(err)
+	}
+
 	for name, contract := range contracts {
-		// If the entire solidity code was specified, build and bind based on that
-		var (
-			abis  []string
-			bins  []string
-			types []string
-			sigs  []map[string]string
-			libs  = make(map[string]string)
-		)
+		fn := utils.ToSnakeCase(name)
+		fp, _ := filepath.Abs(path.Join("./test", "bind"))
 
-		filename := utils.ToSnakeCase(name)
-		abiPath, _ := filepath.Abs(filepath.Join(tmp, filename+".abi"))
-		outPath, _ := filepath.Abs(filepath.Join("./test", "bind", filename+".go"))
-		abi := strings.NewReader(contract.RawABI)
-		if err := writeFile(abiPath, outPath, abi); err != nil {
+		if err := writeFile(fp, fn, contract, options[name]); err != nil {
 			panic(err)
 		}
-
-		// Generate the contract binding
-		code, err := bind.Bind(abi, "adapter", bind.LangGo)
-		if err != nil {
-			panic(err)
-		}
-		print(code)
 	}
 
 	//if err := rootCmd.Execute(); err != nil {
@@ -123,14 +196,6 @@ func run() func(*cobra.Command, []string) {
 
 		switch rootFlags.typeFlag {
 		case BindTypeKlay:
-			opts, err := klaytn.GetOption(rootFlags.optionPath)
-			if err != nil {
-				panic(err)
-			}
-
-			if err := klaytn.GenerateBind(rootFlags.outputPath, deployments, opts); err != nil {
-				panic(err)
-			}
 		case BindTypeProto:
 			if err := proto.GenerateBind(rootFlags.outputPath, deployments, proto.Options{}); err != nil {
 				panic(err)
