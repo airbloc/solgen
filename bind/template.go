@@ -17,22 +17,29 @@
 package bind
 
 import (
+	"bytes"
+	"fmt"
+	"go/format"
+	"path"
+	"path/filepath"
+	"text/template"
+
+	"github.com/frostornge/solgen/utils"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 // tmplData is the data structure required to fill the binding template.
 type tmplData struct {
-	Package   string            // Name of the package to place the generated file in
-	Contract  *tmplContract     // List of contracts to generate into this file
-	Libraries map[string]string // Map the bytecode's link pattern to the library name
+	Package  string            // Name of the package to place the generated file in
+	Imports  map[string]string // List of custom imports to push into this file
+	Contract *tmplContract     // List of contracts to generate into this file
 }
 
 // tmplContract contains the data needed to generate an individual contract binding.
 type tmplContract struct {
 	Type        string                 // Type name of the main contract binding
 	InputABI    string                 // JSON ABI used as the input to generate the binding from
-	InputBin    string                 // Optional EVM bytecode used to denetare deploy code from
-	FuncSigs    map[string]string      // Optional map: string signature -> 4-byte signature
 	Constructor abi.Method             // Contract constructor for deploy parametrization
 	Calls       map[string]*tmplMethod // Contract calls that only read state data
 	Transacts   map[string]*tmplMethod // Contract calls that write state data
@@ -76,4 +83,75 @@ type tmplStruct struct {
 var tmplSource = map[Lang]string{
 	LangGo:   "golang",
 	LangJava: "java",
+}
+
+func RenderBind(data *tmplData, lang Lang) (string, error) {
+	funcs := map[string]interface{}{
+		"bindtype":      bindType[lang],
+		"bindtopictype": bindTopicType[lang],
+		"namedtype":     namedType[lang],
+		"formatmethod":  formatMethod,
+		"formatevent":   formatEvent,
+		"capitalise":    capitalise,
+		"decapitalise":  decapitalise,
+	}
+
+	templatePath, err := filepath.Abs(path.Join("./bind", "templates", tmplSource[lang], "*"))
+	if err != nil {
+		return "", err
+	}
+
+	// generate contract bind
+	buffer := new(bytes.Buffer)
+	tmpl := template.Must(template.New("contract").Funcs(funcs).ParseGlob(templatePath))
+	if err := tmpl.ExecuteTemplate(buffer, "contract", data); err != nil {
+		return "", err
+	}
+
+	// For Go bindings pass the code through gofmt to clean it up
+	if lang == LangGo {
+		code, err := format.Source(buffer.Bytes())
+		if err != nil {
+			return "", fmt.Errorf("%v\n%s", err, buffer)
+		}
+		return string(code), nil
+	}
+	// For all others just return as is for now
+	return buffer.String(), nil
+}
+
+func RenderWrap(data *tmplData, lang Lang) (string, error) {
+	funcs := map[string]interface{}{
+		"bindtype":      bindType[lang],
+		"bindtopictype": bindTopicType[lang],
+		"namedtype":     namedType[lang],
+		"formatmethod":  formatMethod,
+		"formatevent":   formatEvent,
+		"capitalise":    capitalise,
+		"decapitalise":  decapitalise,
+		"toSnakeCase":   utils.ToSnakeCase,
+	}
+
+	templatePath, err := filepath.Abs(path.Join("./bind", "templates", "wrapper", "*"))
+	if err != nil {
+		return "", err
+	}
+
+	// generate contract bind
+	buffer := new(bytes.Buffer)
+	tmpl := template.Must(template.New(tmplSource[lang]).Funcs(funcs).ParseGlob(templatePath))
+	if err := tmpl.ExecuteTemplate(buffer, tmplSource[lang], data); err != nil {
+		return "", err
+	}
+
+	// For Go bindings pass the code through gofmt to clean it up
+	if lang == LangGo {
+		code, err := format.Source(buffer.Bytes())
+		if err != nil {
+			return "", fmt.Errorf("%v\n%s", err, buffer)
+		}
+		return string(code), nil
+	}
+	// For all others just return as is for now
+	return buffer.String(), nil
 }

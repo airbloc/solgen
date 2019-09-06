@@ -21,16 +21,12 @@
 package bind
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"go/format"
-	"log"
-	"path"
-	"path/filepath"
+	"io"
+	"os"
 	"regexp"
 	"strings"
-	"text/template"
 	"unicode"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -38,53 +34,130 @@ import (
 
 // Lang is a target programming language selector to generate bindings for.
 type Lang int
+type Platform string
 
 const (
 	LangGo Lang = iota
 	LangJava
 	LangObjC
+
+	PlatformEth  Platform = "ethereum"
+	PlatformKlay Platform = "klaytn"
 )
 
-// Bind generates a Go wrapper around a contract ABI. This wrapper isn't meant
-// to be used as is in client code, but rather as an intermediate struct which
-// enforces compile time type safety and naming convention opposed to having to
-// manually maintain hard coded strings that break on runtime.
-func Bind(abi abi.ABI, pkg string, lang Lang) (string, error) {
-	// Process each individual contract requested binding
-	contracts := make(map[string]*tmplContract)
+var imports = map[Platform]map[string]string{
+	PlatformEth: {
+		"platform":   "github.com/ethereum/go-ethereum",
+		"abi":        "github.com/ethereum/go-ethereum/accounts/abi",
+		"bind":       "github.com/ethereum/go-ethereum/accounts/abi/bind",
+		"common":     "github.com/ethereum/go-ethereum/common",
+		"chainTypes": "github.com/ethereum/go-ethereum/core/types",
+		"event":      "github.com/ethereum/go-ethereum/event",
+		"types":      "github.com/airbloc/airbloc-go/shared/types",
+		"blockchain": "github.com/airbloc/airbloc-go/shared/blockchain",
+	},
+	PlatformKlay: {
+		"platform":   "github.com/klaytn/klaytn",
+		"abi":        "github.com/klaytn/klaytn/accounts/abi",
+		"bind":       "github.com/klaytn/klaytn/accounts/abi/bind",
+		"common":     "github.com/klaytn/klaytn/common",
+		"chainTypes": "github.com/klaytn/klaytn/blockchain/types",
+		"event":      "github.com/klaytn/klaytn/event",
+		"types":      "github.com/airbloc/airbloc-go/shared/types",
+		"blockchain": "github.com/airbloc/airbloc-go/shared/blockchain",
+	},
+}
 
-	// Map used to flag each encountered library as such
-	isLib := make(map[string]struct{})
-
-	for i := 0; i < len(types); i++ {
-		// Parse the actual ABI to generate the binding for
-		evmABI, err := abi.JSON(strings.NewReader(abis[i]))
-		if err != nil {
-			return "", err
+func apply(srcs ...map[string]string) map[string]string {
+	o := make(map[string]string)
+	for _, src := range srcs {
+		for k, v := range src {
+			o[k] = v
 		}
-		// Strip any whitespace from the JSON ABI
-		strippedABI := strings.Map(func(r rune) rune {
-			if unicode.IsSpace(r) {
-				return -1
+	}
+	return o
+}
+
+type Customs struct {
+	Structs map[string]string
+	Imports map[string]string
+	Methods map[string]bool
+}
+
+func templateData(
+	name, rawABI, pkg string,
+	customs Customs, plat Platform, lang Lang,
+) (*tmplData, error) {
+	// Parse the actual ABI to generate the binding for
+	evmABI, err := abi.JSON(strings.NewReader(rawABI))
+	if err != nil {
+		return nil, err
+	}
+	// Strip any whitespace from the JSON ABI
+	strippedABI := strings.Map(func(r rune) rune {
+		if unicode.IsSpace(r) {
+			return -1
+		}
+		return r
+	}, rawABI)
+
+	// Extract the call and transact methods; events, struct definitions; and sort them alphabetically
+	var (
+		calls     = make(map[string]*tmplMethod)
+		transacts = make(map[string]*tmplMethod)
+		events    = make(map[string]*tmplEvent)
+		structs   = make(map[string]*tmplStruct)
+	)
+	for methodName, original := range evmABI.Methods {
+		if ok, exists := customs.Methods[methodName]; !exists || !ok {
+			continue
+		}
+
+		// Normalize the method for capital cases and non-anonymous inputs/outputs
+		normalized := original
+		normalized.Name = methodNormalizer[lang](original.Name)
+
+		normalized.Inputs = make([]abi.Argument, len(original.Inputs))
+		copy(normalized.Inputs, original.Inputs)
+		for j, input := range normalized.Inputs {
+			if input.Name == "" {
+				normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
 			}
-			return r
-		}, abis[i])
+			if _, exist := structs[input.Type.String()]; input.Type.T == abi.TupleTy && !exist {
+				bindStructType[lang](input.Type, structs)
+			}
+		}
+		normalized.Outputs = make([]abi.Argument, len(original.Outputs))
+		copy(normalized.Outputs, original.Outputs)
+		for j, output := range normalized.Outputs {
+			if output.Name != "" {
+				normalized.Outputs[j].Name = capitalise(output.Name)
+			}
+			if _, exist := structs[output.Type.String()]; output.Type.T == abi.TupleTy && !exist {
+				bindStructType[lang](output.Type, structs)
+			}
+		}
+		// Append the methods to the call or transact lists
+		if original.Const {
+			calls[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
+		} else {
+			transacts[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
+		}
+	}
+	for _, original := range evmABI.Events {
+		// Skip anonymous events as they don't support explicit filtering
+		if original.Anonymous {
+			continue
+		}
+		// Normalize the event for capital cases and non-anonymous outputs
+		normalized := original
+		normalized.Name = methodNormalizer[lang](original.Name)
 
-		// Extract the call and transact methods; events, struct definitions; and sort them alphabetically
-		var (
-			calls     = make(map[string]*tmplMethod)
-			transacts = make(map[string]*tmplMethod)
-			events    = make(map[string]*tmplEvent)
-			structs   = make(map[string]*tmplStruct)
-		)
-		for _, original := range evmABI.Methods {
-			// Normalize the method for capital cases and non-anonymous inputs/outputs
-			normalized := original
-			normalized.Name = methodNormalizer[lang](original.Name)
-
-			normalized.Inputs = make([]abi.Argument, len(original.Inputs))
-			copy(normalized.Inputs, original.Inputs)
-			for j, input := range normalized.Inputs {
+		normalized.Inputs = make([]abi.Argument, len(original.Inputs))
+		copy(normalized.Inputs, original.Inputs)
+		for j, input := range normalized.Inputs {
+			// Indexed fields are input, non-indexed ones are outputs
+			if input.Indexed {
 				if input.Name == "" {
 					normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
 				}
@@ -92,128 +165,83 @@ func Bind(abi abi.ABI, pkg string, lang Lang) (string, error) {
 					bindStructType[lang](input.Type, structs)
 				}
 			}
-			normalized.Outputs = make([]abi.Argument, len(original.Outputs))
-			copy(normalized.Outputs, original.Outputs)
-			for j, output := range normalized.Outputs {
-				if output.Name != "" {
-					normalized.Outputs[j].Name = capitalise(output.Name)
-				}
-				if _, exist := structs[output.Type.String()]; output.Type.T == abi.TupleTy && !exist {
-					bindStructType[lang](output.Type, structs)
-				}
-			}
-			// Append the methods to the call or transact lists
-			if original.Const {
-				calls[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
-			} else {
-				transacts[original.Name] = &tmplMethod{Original: original, Normalized: normalized, Structured: structured(original.Outputs)}
-			}
 		}
-		for _, original := range evmABI.Events {
-			// Skip anonymous events as they don't support explicit filtering
-			if original.Anonymous {
-				continue
-			}
-			// Normalize the event for capital cases and non-anonymous outputs
-			normalized := original
-			normalized.Name = methodNormalizer[lang](original.Name)
+		// Append the event to the accumulator list
+		events[original.Name] = &tmplEvent{Original: original, Normalized: normalized}
+	}
 
-			normalized.Inputs = make([]abi.Argument, len(original.Inputs))
-			copy(normalized.Inputs, original.Inputs)
-			for j, input := range normalized.Inputs {
-				// Indexed fields are input, non-indexed ones are outputs
-				if input.Indexed {
-					if input.Name == "" {
-						normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
-					}
-					if _, exist := structs[input.Type.String()]; input.Type.T == abi.TupleTy && !exist {
-						bindStructType[lang](input.Type, structs)
-					}
-				}
-			}
-			// Append the event to the accumulator list
-			events[original.Name] = &tmplEvent{Original: original, Normalized: normalized}
-		}
+	// There is no easy way to pass arbitrary java objects to the Go side.
+	if len(structs) > 0 && lang == LangJava {
+		return nil, errors.New("java binding for tuple arguments is not supported yet")
+	}
 
-		// There is no easy way to pass arbitrary java objects to the Go side.
-		if len(structs) > 0 && lang == LangJava {
-			return "", errors.New("java binding for tuple arguments is not supported yet")
-		}
-
-		contracts[types[i]] = &tmplContract{
-			Type:        capitalise(types[i]),
-			InputABI:    strings.Replace(strippedABI, "\"", "\\\"", -1),
-			InputBin:    strings.TrimPrefix(strings.TrimSpace(bytecodes[i]), "0x"),
-			Constructor: evmABI.Constructor,
-			Calls:       calls,
-			Transacts:   transacts,
-			Events:      events,
-			Libraries:   make(map[string]string),
-			Structs:     structs,
-		}
-		// Function 4-byte signatures are stored in the same sequence
-		// as types, if available.
-		if len(fsigs) > i {
-			contracts[types[i]].FuncSigs = fsigs[i]
-		}
-		// Parse library references.
-		for pattern, name := range libs {
-			matched, err := regexp.Match("__\\$"+pattern+"\\$__", []byte(contracts[types[i]].InputBin))
-			if err != nil {
-				log.Println("Could not search for pattern", "pattern", pattern, "contract", contracts[types[i]], "err", err)
-			}
-			if matched {
-				contracts[types[i]].Libraries[pattern] = name
-				// keep track that this type is a library
-				if _, ok := isLib[name]; !ok {
-					isLib[name] = struct{}{}
-				}
-			}
+	for exp, strt := range structs {
+		if n, ok := customs.Structs[exp]; ok {
+			strt.Name = n
 		}
 	}
-	// Check if that type has already been identified as a library
-	for i := 0; i < len(types); i++ {
-		_, ok := isLib[types[i]]
-		contracts[types[i]].Library = ok
+
+	contract := &tmplContract{
+		Type:        capitalise(name),
+		InputABI:    strings.Replace(strippedABI, "\"", "\\\"", -1),
+		Constructor: evmABI.Constructor,
+		Calls:       calls,
+		Transacts:   transacts,
+		Events:      events,
+		Structs:     structs,
 	}
+
 	// Generate the contract template data content and render it
 	data := &tmplData{
-		Package:   pkg,
-		Contract: ,
-		Libraries: libs,
-	}
-	buffer := new(bytes.Buffer)
-
-	funcs := map[string]interface{}{
-		"bindtype":      bindType[lang],
-		"bindtopictype": bindTopicType[lang],
-		"namedtype":     namedType[lang],
-		"formatmethod":  formatMethod,
-		"formatevent":   formatEvent,
-		"capitalise":    capitalise,
-		"decapitalise":  decapitalise,
+		Package:  pkg,
+		Imports:  apply(imports[plat], customs.Imports),
+		Contract: contract,
 	}
 
-	templatePath, err := filepath.Abs(path.Join("./bind", "templates", tmplSource[lang], "*"))
+	return data, nil
+}
+
+// Bind generates a Go wrapper around a contract ABI. This wrapper isn't meant
+// to be used as is in client code, but rather as an intermediate struct which
+// enforces compile time type safety and naming convention opposed to having to
+// manually maintain hard coded strings that break on runtime.
+func Bind(
+	bindFile, wrapFile *os.File,
+	contractName, contractABI, pkg string,
+	customs Customs, plat Platform, lang Lang,
+) error {
+	data, err := templateData(contractName, contractABI, pkg, customs, plat, lang)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	// generate contract bind
-	tmpl := template.Must(template.New("contract").Funcs(funcs).ParseGlob(templatePath))
-	if err := tmpl.ExecuteTemplate(buffer, "contract", data); err != nil {
-		return "", err
+	bindCode, err := RenderBind(data, lang)
+	if err != nil {
+		return err
 	}
-	// For Go bindings pass the code through gofmt to clean it up
-	if lang == LangGo {
-		code, err := format.Source(buffer.Bytes())
-		if err != nil {
-			return "", fmt.Errorf("%v\n%s", err, buffer)
-		}
-		return string(code), nil
+	bindCode = strings.ReplaceAll(bindCode, "[8]byte", "types.ID")
+	bindCode = strings.ReplaceAll(bindCode, "[32]byte", "common.Hash")
+	bindCode = strings.ReplaceAll(bindCode, "[20]byte", "types.DataId")
+
+	_, err = io.Copy(bindFile, strings.NewReader(bindCode))
+	if err != nil {
+		return err
 	}
-	// For all others just return as is for now
-	return buffer.String(), nil
+
+	wrapCode, err := RenderWrap(data, lang)
+	if err != nil {
+		return err
+	}
+	wrapCode = strings.ReplaceAll(wrapCode, "[8]byte", "types.ID")
+	wrapCode = strings.ReplaceAll(wrapCode, "[32]byte", "common.Hash")
+	wrapCode = strings.ReplaceAll(wrapCode, "[20]byte", "types.DataId")
+
+	_, err = io.Copy(wrapFile, strings.NewReader(wrapCode))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // bindType is a set of type binders that convert Solidity types to some supported
