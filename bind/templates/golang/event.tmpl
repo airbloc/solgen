@@ -2,7 +2,7 @@
 {{range .Events}}
     // {{$contract.Type}}{{.Normalized.Name}}Iterator is returned from Filter{{.Normalized.Name}} and is used to iterate over the raw logs and unpacked data for {{.Normalized.Name}} events raised by the {{$contract.Type}} contract.
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {
-        event *{{$contract.Type}}{{.Normalized.Name}} // Event containing the contract specifics and raw log
+        Evt *{{$contract.Type}}{{.Normalized.Name}} // Event containing the contract specifics and raw log
 
         contract *blockchain.BoundContract // Generic contract to use for unpacking event data
         event    string              // Event name to use for unpacking event data
@@ -24,12 +24,12 @@
         if (it.done) {
             select {
             case log := <-it.logs:
-                it.event = new({{$contract.Type}}{{.Normalized.Name}})
-                if err := it.contract.UnpackLog(it.event, it.event, log); err != nil {
+                it.Evt = new({{$contract.Type}}{{.Normalized.Name}})
+                if err := it.contract.UnpackLog(it.Evt, it.event, log); err != nil {
                     it.fail = err
                     return false
                 }
-                it.event.Raw = log
+                it.Evt.Raw = log
                 return true
 
             default:
@@ -39,12 +39,12 @@
         // Iterator still in progress, wait for either a data or an error event
         select {
         case log := <-it.logs:
-            it.event = new({{$contract.Type}}{{.Normalized.Name}})
-            if err := it.contract.UnpackLog(it.event, it.event, log); err != nil {
+            it.Evt = new({{$contract.Type}}{{.Normalized.Name}})
+            if err := it.contract.UnpackLog(it.Evt, it.event, log); err != nil {
                 it.fail = err
                 return false
             }
-            it.event.Raw = log
+            it.Evt.Raw = log
             return true
 
         case err := <-it.sub.Err():
@@ -55,7 +55,7 @@
     }
     // Error returns any retrieval or parsing error occurred during filtering.
     func (it *{{$contract.Type}}{{.Normalized.Name}}Iterator) Event() interface{} {
-        return it.event
+        return it.Evt
     }
     // Error returns any retrieval or parsing error occurred during filtering.
     func (it *{{$contract.Type}}{{.Normalized.Name}}Iterator) Error() error {
