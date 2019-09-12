@@ -124,7 +124,7 @@ func main() {
 			},
 		},
 		"Consents": {
-			Structs: map[string]string{"(uint8,string,uint8)": "types.ConsentData", "(uint8,string,uint8)[]": "[]types.ConsentData"},
+			Structs: map[string]string{"(uint8,string,bool)": "types.ConsentData", "(uint8,string,bool)[]": "[]types.ConsentData"},
 			Methods: map[string]bool{
 				"consent":                       true,
 				"consentMany":                   true,
@@ -149,7 +149,7 @@ func main() {
 		"Exchange": {
 			Structs: map[string]string{
 				"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer",
-				"(address,bytes4,bytes)": "types.Escrow",
+				"(address,bytes4,bytes)":                                                  "types.Escrow",
 			},
 			Methods: map[string]bool{
 				"prepare":         true,

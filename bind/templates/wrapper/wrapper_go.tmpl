@@ -124,7 +124,7 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
 }
 
 func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    contract := bind.NewBoundContract(address, parsedABI, backend, backend, backend)
+    contract := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
 
     return &{{$contract.Type}}Contract{
         address:   address,
@@ -170,10 +170,6 @@ func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(
     ctx context.Context,
     {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
 {{end}}) (*chainTypes.Receipt, error) {
-    tx, err := c.{{$contract.Type}}Transactor.{{.Normalized.Name}}(c.client.Account(){{range .Normalized.Inputs}}, {{.Name}}{{end}})
-    if err != nil {
-        return nil, err
-    }
-    return c.client.WaitMined(ctx, tx)
+    return c.{{$contract.Type}}Transactor.{{.Normalized.Name}}(c.client.Account(ctx){{range .Normalized.Inputs}}, {{.Name}}{{end}})
 }
 {{end}}{{end}}
