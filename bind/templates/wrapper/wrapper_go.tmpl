@@ -124,7 +124,7 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
 }
 
 func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    contract := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
+    contract := blockchain.NewBoundContract(address, parsedABI, backend.(blockchain.TxClient), backend, backend, backend)
 
     return &{{$contract.Type}}Contract{
         address:   address,
