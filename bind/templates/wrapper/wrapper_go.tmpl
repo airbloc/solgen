@@ -126,26 +126,22 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
     return c.createdAt
 }
 
-func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    contract := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
+func New{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
+    base := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
 
-    return &{{$contract.Type}}Contract{
+    contract := &{{$contract.Type}}Contract{
         address:   address,
         txHash:    txHash,
         createdAt: createdAt,
         client:    backend.(blockchain.TxClient),
 
-        {{$contract.Type}}Caller: contracts.New{{$contract.Type}}Caller(contract),
-        {{$contract.Type}}Transactor: contracts.New{{$contract.Type}}Transactor(contract),
-        {{$contract.Type}}Filterer: contracts.New{{$contract.Type}}Filterer(contract),
+        {{$contract.Type}}Caller: contracts.New{{$contract.Type}}Caller(base),
+        {{$contract.Type}}Transactor: contracts.New{{$contract.Type}}Transactor(base),
+        {{$contract.Type}}Filterer: contracts.New{{$contract.Type}}Filterer(base),
     }
-}
 
-// convenient hacks for blockchain.Client
-func init() {
-    blockchain.AddContractConstructor("{{$contract.Type}}", new{{$contract.Type}}Contract)
-    {{range $contract.Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.ID}}", "{{.Original.Sig}}")
-{{end}}}
+    return contract
+}
 
 {{range $contract.Calls}}
 // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
