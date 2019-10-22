@@ -149,7 +149,7 @@ func main() {
 		"Exchange": {
 			Structs: map[string]string{
 				"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer",
-				"(address,bytes4,bytes)": "types.Escrow",
+				"(address,bytes4,bytes)":                                                  "types.Escrow",
 			},
 			Methods: map[string]bool{
 				"prepare":         true,

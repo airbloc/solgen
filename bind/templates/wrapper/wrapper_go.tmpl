@@ -26,6 +26,7 @@ type I{{$contract.Type}}Manager interface {
     // Transact methods
     {{range $contract.Transacts}}{{.Normalized.Name}}(
         ctx context.Context,
+        opts *blockchain.TransactOpts,
         {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
         {{end}}) ({{if .Structured}}struct{
         {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};
@@ -56,6 +57,7 @@ type I{{$contract.Type}}Calls interface { {{range $contract.Calls}}
 type I{{$contract.Type}}Transacts interface { {{range $contract.Transacts}}
     {{.Normalized.Name}}(
         ctx context.Context,
+        opts *blockchain.TransactOpts,
         {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
     {{end}}) (*chainTypes.Receipt, error){{end}}
 }
@@ -124,7 +126,7 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
 }
 
 func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    contract := bind.NewBoundContract(address, parsedABI, backend, backend, backend)
+    contract := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
 
     return &{{$contract.Type}}Contract{
         address:   address,
@@ -168,9 +170,15 @@ func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(
 // Solidity: {{.Original.String}}
 func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(
     ctx context.Context,
+    opts *blockchain.TransactOpts,
     {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
 {{end}}) (*chainTypes.Receipt, error) {
-    tx, err := c.{{$contract.Type}}Transactor.{{.Normalized.Name}}(c.client.Account(){{range .Normalized.Inputs}}, {{.Name}}{{end}})
+    if opts == nil {
+        opts = &blockchain.TransactOpts{TxType: chainTypes.TxTypeSmartContractExecution}
+    }
+
+    tx, err := c.{{$contract.Type}}Transactor.{{.Normalized.Name}}(c.client.Account(ctx, opts){{range .Normalized.Inputs}}, {{.Name}}{{end}})
+
     if err != nil {
         return nil, err
     }

@@ -4,7 +4,7 @@
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {
         Event *{{$contract.Type}}{{.Normalized.Name}} // Event containing the contract specifics and raw log
 
-        contract *bind.BoundContract // Generic contract to use for unpacking event data
+        contract *blockchain.BoundContract // Generic contract to use for unpacking event data
         event    string              // Event name to use for unpacking event data
 
         logs chan chainTypes.Log        // Log channel receiving the found contract events
