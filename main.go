@@ -57,22 +57,30 @@ func openFile(path string) (*os.File, error) {
 }
 
 func writeFile(path, filename string, contract deployment.Deployment, option bind.Customs) error {
-	bindFile, err := openFile(filepath.Join(path, filename+".go"))
+	bindFile, err := openFile(filepath.Join(path, "contracts", filename+".go"))
 	if err != nil {
 		return err
 	}
 	defer bindFile.Close()
 
-	wrapFile, err := openFile(filepath.Join(path, filename+"_wrapper.go"))
+	wrapFile, err := openFile(filepath.Join(path, "wrappers", filename+".go"))
 	if err != nil {
 		return err
 	}
 	defer wrapFile.Close()
 
 	// Generate the contract binding
-	if err := bind.Bind(
-		bindFile, wrapFile,
-		filename, contract.RawABI, "adapter",
+	if err := bind.BindContract(
+		bindFile,
+		filename, contract.RawABI, "contracts",
+		option, bind.PlatformKlay, bind.LangGo,
+	); err != nil {
+		return err
+	}
+
+	if err := bind.BindWrapper(
+		wrapFile,
+		filename, contract.RawABI, "wrappers",
 		option, bind.PlatformKlay, bind.LangGo,
 	); err != nil {
 		return err
@@ -169,7 +177,10 @@ func main() {
 		panic(err)
 	}
 
-	if err := os.MkdirAll("./test/bind", os.ModePerm); err != nil {
+	if err := os.MkdirAll("./test/bind/contracts", os.ModePerm); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll("./test/bind/wrappers", os.ModePerm); err != nil {
 		panic(err)
 	}
 

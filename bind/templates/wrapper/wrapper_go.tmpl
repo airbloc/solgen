@@ -8,13 +8,14 @@ import (
     "math/big"
     "strings"
 
+    "../contracts"
     {{range $name, $import := .Imports}}{{$name}} "{{$import}}"
     {{end}})
 
 {{$contract := .Contract}}
 {{$structs := .Contract.Structs}}
 
-//go:generate mockgen -source {{toSnakeCase $contract.Type}}_wrapper.go -destination ./mocks/mock_{{toSnakeCase $contract.Type}}.go -package mocks I{{$contract.Type}}Manager,I{{$contract.Type}}Contract
+//go:generate mockgen -source {{toSnakeCase $contract.Type}}.go -destination ./mocks/mock_{{toSnakeCase $contract.Type}}.go -package mocks I{{$contract.Type}}Manager,I{{$contract.Type}}Contract
 type I{{$contract.Type}}Manager interface {
     Address() common.Address
     TxHash() common.Hash
@@ -72,18 +73,18 @@ type I{{$contract.Type}}Filterer interface { {{range $contract.Events}}
     Filter{{.Normalized.Name}}(
         opts *bind.FilterOpts,
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
-    {{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error){{end}}
+    {{end}}) (*contracts.{{$contract.Type}}{{.Normalized.Name}}Iterator, error){{end}}
 }
 
 type I{{$contract.Type}}Parser interface { {{range $contract.Events}}
-    Parse{{.Normalized.Name}}(log chainTypes.Log) (*{{$contract.Type}}{{.Normalized.Name}}, error)
-    Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*{{$contract.Type}}{{.Normalized.Name}}, error){{end}}
+    Parse{{.Normalized.Name}}(log chainTypes.Log) (*contracts.{{$contract.Type}}{{.Normalized.Name}}, error)
+    Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*contracts.{{$contract.Type}}{{.Normalized.Name}}, error){{end}}
 }
 
 type I{{$contract.Type}}Watcher interface { {{range $contract.Events}}
     Watch{{.Normalized.Name}}(
         opts *bind.WatchOpts,
-        sink chan<- *{{$contract.Type}}{{.Normalized.Name}},
+        sink chan<- *contracts.{{$contract.Type}}{{.Normalized.Name}},
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
     {{end}}) (event.Subscription, error){{end}}
 }
@@ -105,9 +106,9 @@ type {{$contract.Type}}Contract struct {
     createdAt *big.Int
     client    blockchain.TxClient
 
-    {{$contract.Type}}Caller
-    {{$contract.Type}}Filterer
-    {{$contract.Type}}Transactor
+    contracts.{{$contract.Type}}Caller
+    contracts.{{$contract.Type}}Filterer
+    contracts.{{$contract.Type}}Transactor
 }
 
 // Address is getter method of Accounts.address
@@ -134,9 +135,9 @@ func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, c
         createdAt: createdAt,
         client:    backend.(blockchain.TxClient),
 
-        {{$contract.Type}}Caller: {{$contract.Type}}Caller{contract: contract},
-        {{$contract.Type}}Transactor: {{$contract.Type}}Transactor{contract: contract},
-        {{$contract.Type}}Filterer: {{$contract.Type}}Filterer{contract: contract},
+        {{$contract.Type}}Caller: contracts.New{{$contract.Type}}Caller(contract),
+        {{$contract.Type}}Transactor: contracts.New{{$contract.Type}}Transactor(contract),
+        {{$contract.Type}}Filterer: contracts.New{{$contract.Type}}Filterer(contract),
     }
 }
 

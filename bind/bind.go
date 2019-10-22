@@ -205,8 +205,8 @@ func templateData(
 // to be used as is in client code, but rather as an intermediate struct which
 // enforces compile time type safety and naming convention opposed to having to
 // manually maintain hard coded strings that break on runtime.
-func Bind(
-	bindFile, wrapFile *os.File,
+func BindContract(
+	bindFile *os.File,
 	contractName, contractABI, pkg string,
 	customs Customs, plat Platform, lang Lang,
 ) error {
@@ -224,6 +224,18 @@ func Bind(
 	bindCode = strings.ReplaceAll(bindCode, "[20]byte", "types.DataId")
 
 	_, err = io.Copy(bindFile, strings.NewReader(bindCode))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func BindWrapper(
+	wrapFile *os.File,
+	contractName, contractABI, pkg string,
+	customs Customs, plat Platform, lang Lang,
+) error {
+	data, err := templateData(contractName, contractABI, pkg, customs, plat, lang)
 	if err != nil {
 		return err
 	}
