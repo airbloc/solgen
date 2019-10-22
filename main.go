@@ -124,7 +124,7 @@ func main() {
 			},
 		},
 		"Consents": {
-			Structs: map[string]string{"(uint8,string,uint8)": "types.ConsentData", "(uint8,string,uint8)[]": "[]types.ConsentData"},
+			Structs: map[string]string{"(uint8,string,bool)": "types.ConsentData", "(uint8,string,bool)[]": "[]types.ConsentData"},
 			Methods: map[string]bool{
 				"consent":                       true,
 				"consentMany":                   true,
