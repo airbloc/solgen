@@ -235,6 +235,12 @@ func BindWrapper(
 	contractName, contractABI, pkg string,
 	customs Customs, plat Platform, lang Lang,
 ) error {
+	if customs.Imports == nil {
+		customs.Imports = map[string]string{
+			"contracts": "github.com/airbloc/airbloc-sdk-go/bind/contracts",
+		}
+	}
+
 	data, err := templateData(contractName, contractABI, pkg, customs, plat, lang)
 	if err != nil {
 		return err

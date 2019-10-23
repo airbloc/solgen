@@ -8,7 +8,6 @@ import (
     "math/big"
     "strings"
 
-    "../contracts"
     {{range $name, $import := .Imports}}{{$name}} "{{$import}}"
     {{end}})
 
