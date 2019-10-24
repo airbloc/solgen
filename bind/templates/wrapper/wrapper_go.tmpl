@@ -72,7 +72,7 @@ type I{{$contract.Type}}Filterer interface { {{range $contract.Events}}
     Filter{{.Normalized.Name}}(
         opts *bind.FilterOpts,
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
-    {{end}}) (*contracts.{{$contract.Type}}{{.Normalized.Name}}Iterator, error){{end}}
+    {{end}}) (blockchain.EventIterator, error){{end}}
 }
 
 type I{{$contract.Type}}Parser interface { {{range $contract.Events}}
