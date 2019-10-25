@@ -1,4 +1,4 @@
-{{define "go"}}
+{{define "manager"}}
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -21,9 +21,9 @@ type accountsManager struct {
 // NewAccountsManager makes new *accountsManager struct
 func NewAccountsManager(client blockchain.TxClient) IAccountsManager {
     return &accountsManager{
-    IAccountsContract: client.GetContract(&AccountsContract{}).(*AccountsContract),
-    client:            client,
-    log:               logger.New("accounts"),
+        IAccountsContract: client.GetContract(&AccountsContract{}).(*AccountsContract),
+        client:            client,
+        log:               logger.New("accounts"),
     }
 }
 {{end}}
