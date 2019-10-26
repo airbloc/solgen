@@ -2,7 +2,7 @@ package language
 
 import (
 	"github.com/airbloc/solgen/bind/template"
-	"github.com/airbloc/solgen/bind/utils"
+	"github.com/airbloc/solgen/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 

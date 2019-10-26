@@ -32,7 +32,7 @@ import (
 	"github.com/airbloc/solgen/bind/language"
 	"github.com/airbloc/solgen/bind/platform"
 	"github.com/airbloc/solgen/bind/template"
-	"github.com/airbloc/solgen/bind/utils"
+	"github.com/airbloc/solgen/utils"
 )
 
 type Mode string
