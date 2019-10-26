@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/airbloc/solgen/bind/template"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/bind/template"
 )
 
 // structured checks whether a list of ABI data types has enough information to

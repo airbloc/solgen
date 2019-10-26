@@ -5,10 +5,10 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/frostornge/solgen/bind"
-	"github.com/frostornge/solgen/deployment"
-	"github.com/frostornge/solgen/proto"
-	"github.com/frostornge/solgen/utils"
+	"github.com/airbloc/solgen/bind"
+	"github.com/airbloc/solgen/deployment"
+	"github.com/airbloc/solgen/proto"
+	"github.com/airbloc/solgen/utils"
 	"github.com/spf13/cobra"
 )
 

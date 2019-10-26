@@ -6,10 +6,10 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/airbloc/solgen/bind/language"
+	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/bind/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/bind/language"
-	"github.com/frostornge/solgen/bind/template"
-	"github.com/frostornge/solgen/bind/utils"
 )
 
 func parseContract(evmABI abi.ABI, customs Customs, lang language.Lang) (*template.Contract, error) {

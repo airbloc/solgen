@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"regexp"
 
+	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/bind/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/bind/template"
-	"github.com/frostornge/solgen/bind/utils"
 )
 
 // bindBasicTypeJava converts basic solidity types(except array, slice and tuple) to Java one.

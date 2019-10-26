@@ -1,9 +1,9 @@
 package language
 
 import (
+	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/bind/utils"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/frostornge/solgen/bind/template"
-	"github.com/frostornge/solgen/bind/utils"
 )
 
 type Lang string

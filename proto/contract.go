@@ -3,7 +3,7 @@ package proto
 import (
 	"fmt"
 
-	"github.com/frostornge/solgen/utils"
+	"github.com/airbloc/solgen/utils"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )

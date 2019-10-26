@@ -29,10 +29,10 @@ import (
 	"strings"
 	tmpl "text/template"
 
-	"github.com/frostornge/solgen/bind/language"
-	"github.com/frostornge/solgen/bind/platform"
-	"github.com/frostornge/solgen/bind/template"
-	"github.com/frostornge/solgen/bind/utils"
+	"github.com/airbloc/solgen/bind/language"
+	"github.com/airbloc/solgen/bind/platform"
+	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/bind/utils"
 )
 
 type Mode string

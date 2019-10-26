@@ -1,10 +1,10 @@
-module github.com/frostornge/solgen
+module github.com/airbloc/solgen
 
 go 1.13
 
 replace (
 	git.apache.org/thrift.git => github.com/apache/thrift v0.12.0
-	github.com/klaytn/klaytn => github.com/frostornge/klaytn v1.1.1-0.20191001045213-4c5c6da28f1e
+	github.com/klaytn/klaytn => github.com/airbloc/klaytn v1.1.1-0.20191024060824-1a436ec12b85
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/gballet/go-libpcsclite v0.0.0-20190607065134-2772fd86a8ff // indirect
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/karalabe/usb v0.0.0-20190819132248-550797b1cad8 // indirect
-	github.com/klaytn/klaytn v1.1.1 // indirect
+	github.com/klaytn/klaytn v1.1.1
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/spf13/afero v1.2.2 // indirect
 	github.com/spf13/cobra v0.0.5

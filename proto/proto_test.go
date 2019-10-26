@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/Flaque/filet"
-	"github.com/frostornge/solgen/deployment"
+	"github.com/airbloc/solgen/deployment"
 	"github.com/stretchr/testify/assert"
 )
 
