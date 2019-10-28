@@ -43,7 +43,13 @@ const (
 	Wrapper  Mode = "wrapper"
 )
 
-func getInternalFuncs(mode Mode, lang language.Lang) map[string]interface{} {
+var Modes = []Mode{
+	Contract,
+	Manager,
+	Wrapper,
+}
+
+func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} {
 	switch mode {
 	case Contract:
 		return map[string]interface{}{
@@ -59,7 +65,15 @@ func getInternalFuncs(mode Mode, lang language.Lang) map[string]interface{} {
 			"decapitalise": utils.Decapitalise,
 		}
 	case Manager:
-		return map[string]interface{}{}
+		return map[string]interface{}{
+			// from lang package
+			"bindtype":      language.BindType[lang],
+			"bindtopictype": language.BindTopicType[lang],
+
+			// from utils package
+			"decapitalise": utils.Decapitalise,
+			"toSnakeCase":  utils.ToSnakeCase,
+		}
 	case Wrapper:
 		return map[string]interface{}{
 			// from lang package
@@ -79,40 +93,56 @@ func getInternalFuncs(mode Mode, lang language.Lang) map[string]interface{} {
 	}
 }
 
-func Bind(
-	mode Mode,
-	name, abi string,
-	customs Customs,
-	plat platform.Platform,
-	lang language.Lang,
-) (string, error) {
-	contract, err := getContract(abi, customs, lang)
+func Bind(name string, opt Option) (map[Mode]string, error) {
+	contract, err := getContract(opt.ABI, opt.Customs, opt.Language)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	contract.Type = utils.Capitalise(name)
 
 	data := &template.Data{
-		Package:  string(mode),
-		Imports:  platform.MergeImports(platform.Imports[plat], customs.Imports),
+		Imports:  platform.MergeImports(platform.Imports[opt.Platform], opt.Customs.Imports),
 		Contract: contract,
 	}
 
-	tmplPath, err := filepath.Abs(path.Join("./bind", "template", string(lang), string(mode), "*"))
+	codes := make(map[Mode]string)
+	for _, mode := range Modes {
+		data.Package = string(mode)
+
+		if mode == Manager {
+			data.Imports = platform.ManagerImports(opt.Platform)
+		}
+
+		code, err := bind(mode, data, opt)
+		if err != nil {
+			return nil, err
+		}
+		codes[mode] = code
+	}
+
+	return codes, nil
+}
+
+func bind(
+	mode Mode,
+	data *template.Data,
+	opt Option,
+) (string, error) {
+	tmplPath, err := filepath.Abs(path.Join("./bind", "template", string(opt.Language), string(mode), "*"))
 	if err != nil {
 		return "", err
 	}
 
 	buffer := new(bytes.Buffer)
-	funcs := getInternalFuncs(mode, lang)
-	t := tmpl.Must(tmpl.New(string(mode)).Funcs(funcs).ParseGlob(tmplPath))
+	functions := getInternalFuncs(mode, opt.Language)
+	t := tmpl.Must(tmpl.New(string(mode)).Funcs(functions).ParseGlob(tmplPath))
 	if err := t.ExecuteTemplate(buffer, string(mode), data); err != nil {
 		return "", err
 	}
 
 	var code string
 
-	switch lang {
+	switch opt.Language {
 	case language.Go:
 		codeBytes, err := format.Source(buffer.Bytes())
 		if err != nil {

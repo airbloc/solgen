@@ -11,19 +11,73 @@ import (
     {{range $name, $import := .Imports}}{{$name}} "{{$import}}"
     {{end}})
 
-// accountsManager is contract wrapper struct
-type accountsManager struct {
-    IAccountsContract
+{{$contract := .Contract}}
+{{$structs := .Contract.Structs}}
+
+//go:generate mockgen -source {{toSnakeCase $contract.Type}}.go -destination ./mocks/mock_{{toSnakeCase $contract.Type}}.go -package mocks I{{$contract.Type}}Manager
+
+type I{{$contract.Type}}Manager interface {
+    Address() common.Address
+    TxHash() common.Hash
+    CreatedAt() *big.Int
+
+    // Call methods
+    wrappers.I{{$contract.Type}}Calls
+
+    // Transact methods
+    {{range $contract.Transacts}}{{.Normalized.Name}}(
+        ctx context.Context,
+        opts *blockchain.TransactOpts,
+        {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
+        {{end}}) ({{if .Structured}}struct{
+        {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};
+        {{end}}
+    },{{else}}{{range .Normalized.Outputs}}
+        {{bindtype .Type $structs}},{{end}}
+        {{end}} error,
+    )
+    {{end}}
+
+    // Event methods
+    wrappers.I{{$contract.Type}}Filterer
+    wrappers.I{{$contract.Type}}Watcher
+}
+
+// {{decapitalise $contract.Type}}Manager is contract wrapper struct
+type {{decapitalise $contract.Type}}Manager struct {
+    wrappers.I{{$contract.Type}}Contract
     client blockchain.TxClient
     log    *logger.Logger
 }
 
-// NewAccountsManager makes new *accountsManager struct
-func NewAccountsManager(client blockchain.TxClient) IAccountsManager {
-    return &accountsManager{
-        IAccountsContract: client.GetContract(&AccountsContract{}).(*AccountsContract),
+// New{{$contract.Type}}Manager makes new *{{decapitalise $contract.Type}}Manager struct
+func New{{$contract.Type}}Manager(client blockchain.TxClient, contract interface{}) interface{} {
+    return &{{decapitalise $contract.Type}}Manager{
+        I{{$contract.Type}}Contract: contract.(*wrappers.{{$contract.Type}}Contract),
         client:            client,
-        log:               logger.New("accounts"),
+        log:               logger.New("{{decapitalise $contract.Type}}"),
     }
 }
-{{end}}
+
+{{range $contract.Transacts}}
+// {{.Normalized.Name}} is a paid mutator transaction binding the contract method 0x{{printf "%x" .Original.ID}}.
+//
+// Solidity: {{.Original.String}}
+
+func (manager *{{decapitalise $contract.Type}}Manager) {{.Normalized.Name}}(
+    ctx context.Context,
+    opts *blockchain.TransactOpts,
+    {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
+    {{end}}) ({{if .Structured}}struct{
+    {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};
+    {{end}}
+},{{else}}{{range .Normalized.Outputs}}
+    {{bindtype .Type $structs}},{{end}}
+    {{end}} error,
+) {
+    return {{if .Structured}}nil,
+    {{else}}{{range .Normalized.Outputs}}
+        {{bindtype .Type $structs}},{{end}}
+    {{end}} nil
+}
+{{end}}{{end}}

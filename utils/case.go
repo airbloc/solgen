@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/klaytn/klaytn/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 // capitalise makes a camel-case string which starts with an upper case character.

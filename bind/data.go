@@ -12,7 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-func parseContract(evmABI abi.ABI, customs Customs, lang language.Lang) (*template.Contract, error) {
+func parseContract(evmABI abi.ABI, customs Customs, lang language.Language) (*template.Contract, error) {
 	// Extract the call and transact methods; events, struct definitions; and sort them alphabetically
 	var (
 		calls     = make(map[string]*template.Method)
@@ -114,7 +114,7 @@ func parseContract(evmABI abi.ABI, customs Customs, lang language.Lang) (*templa
 func getContract(
 	rawABI string,
 	customs Customs,
-	lang language.Lang,
+	lang language.Language,
 ) (*template.Contract, error) {
 	// ABI
 	evmABI, err := abi.JSON(strings.NewReader(rawABI))

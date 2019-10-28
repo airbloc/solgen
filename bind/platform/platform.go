@@ -12,12 +12,12 @@ var Imports = map[Platform]map[string]string{
 	Klaytn:   MergeImports(AirblocDependencies, KlaytnDependencies),
 }
 
-func ManagerImports(platform Platform) map[string]string {
+func ManagerImports(plat Platform) map[string]string {
 	return map[string]string{
 		"wrappers":   "github.com/airbloc/contract-sdk/bind/wrappers",
 		"blockchain": "github.com/airbloc/contract-sdk/blockchain",
 		"logger":     "github.com/airbloc/logger",
-		"common":     Imports[platform]["common"],
+		"common":     Imports[plat]["common"],
 		"errors":     "github.com/pkg/errors",
 	}
 }

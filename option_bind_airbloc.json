@@ -20,7 +20,7 @@
   },
   "AppRegistry": {
     "Structs": {
-      "(string,address,address)": "types.App",
+      "(string,address,address)": "types.App"
     },
     "Methods": {
       "register":         true,
