@@ -26,7 +26,6 @@ import (
 	"go/format"
 	"path"
 	"path/filepath"
-	"strings"
 	tmpl "text/template"
 
 	"github.com/airbloc/solgen/bind/language"
@@ -38,9 +37,9 @@ import (
 type Mode string
 
 const (
-	Contract Mode = "contract"
-	Manager  Mode = "manager"
-	Wrapper  Mode = "wrapper"
+	Contract Mode = "contracts"
+	Manager  Mode = "managers"
+	Wrapper  Mode = "wrappers"
 )
 
 var Modes = []Mode{
@@ -93,8 +92,8 @@ func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} 
 	}
 }
 
-func Bind(name string, opt Option) (map[Mode]string, error) {
-	contract, err := getContract(opt.ABI, opt.Customs, opt.Language)
+func Bind(name string, abi string, opt Option) (map[Mode][]byte, error) {
+	contract, err := getContract(abi, opt.Customs, opt.Language)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +104,7 @@ func Bind(name string, opt Option) (map[Mode]string, error) {
 		Contract: contract,
 	}
 
-	codes := make(map[Mode]string)
+	codes := make(map[Mode][]byte)
 	for _, mode := range Modes {
 		data.Package = string(mode)
 
@@ -127,35 +126,34 @@ func bind(
 	mode Mode,
 	data *template.Data,
 	opt Option,
-) (string, error) {
+) ([]byte, error) {
 	tmplPath, err := filepath.Abs(path.Join("./bind", "template", string(opt.Language), string(mode), "*"))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	buffer := new(bytes.Buffer)
 	functions := getInternalFuncs(mode, opt.Language)
 	t := tmpl.Must(tmpl.New(string(mode)).Funcs(functions).ParseGlob(tmplPath))
 	if err := t.ExecuteTemplate(buffer, string(mode), data); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	var code string
+	var code []byte
 
 	switch opt.Language {
 	case language.Go:
-		codeBytes, err := format.Source(buffer.Bytes())
+		code, err = format.Source(buffer.Bytes())
 		if err != nil {
-			return "", fmt.Errorf("%v\n%s", err, buffer)
+			return nil, fmt.Errorf("%v\n%s", err, buffer)
 		}
-		code = string(codeBytes)
 	default:
-		code = buffer.String()
+		code = buffer.Bytes()
 	}
 
-	code = strings.ReplaceAll(code, "[8]byte", "types.ID")
-	code = strings.ReplaceAll(code, "[32]byte", "common.Hash")
-	code = strings.ReplaceAll(code, "[20]byte", "types.DataId")
+	code = bytes.ReplaceAll(code, []byte("[8]byte"), []byte("types.ID"))
+	code = bytes.ReplaceAll(code, []byte("[32]byte"), []byte("common.Hash"))
+	code = bytes.ReplaceAll(code, []byte("[20]byte"), []byte("types.DataId"))
 
 	return code, nil
 }

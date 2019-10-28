@@ -70,7 +70,7 @@ func bindStructTypeGo(kind abi.Type, structs map[string]*template.Struct) string
 		}
 		var fields []*template.Field
 		for i, elem := range kind.TupleElems {
-			field := bindTopicTypeGo(*elem, structs)
+			field := bindStructTypeGo(*elem, structs)
 			fields = append(fields, &template.Field{Type: field, Name: utils.Capitalise(kind.TupleRawNames[i]), SolKind: *elem})
 		}
 		name := fmt.Sprintf("Struct%d", len(structs))

@@ -6,7 +6,6 @@ import (
 )
 
 type Option struct {
-	ABI      string
 	Customs  Customs
 	Platform platform.Platform
 	Language language.Language

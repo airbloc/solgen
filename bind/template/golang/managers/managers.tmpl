@@ -1,4 +1,4 @@
-{{define "manager"}}
+{{define "managers"}}
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -75,9 +75,6 @@ func (manager *{{decapitalise $contract.Type}}Manager) {{.Normalized.Name}}(
     {{bindtype .Type $structs}},{{end}}
     {{end}} error,
 ) {
-    return {{if .Structured}}nil,
-    {{else}}{{range .Normalized.Outputs}}
-        {{bindtype .Type $structs}},{{end}}
-    {{end}} nil
+    return {{if .Structured}}nil,{{else}}{{range .Normalized.Outputs}}nil,{{end}}{{end}} nil
 }
 {{end}}{{end}}
