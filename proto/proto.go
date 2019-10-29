@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/frostornge/solgen/deployment"
+	"github.com/airbloc/solgen/deployment"
 )
 
 type option map[string]string

@@ -30,15 +30,28 @@ type {{.Type}}Caller struct {
     contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
 }
 
+func New{{.Type}}Caller(contract *blockchain.BoundContract) {{.Type}}Caller {
+    return {{.Type}}Caller{contract: contract}
+}
+
 // {{.Type}}Transactor is an auto generated write-only Go binding around an Ethereum contract.
 type {{.Type}}Transactor struct {
     contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
+}
+
+func New{{.Type}}Transactor(contract *blockchain.BoundContract) {{.Type}}Transactor {
+    return {{.Type}}Transactor{contract: contract}
 }
 
 // {{.Type}}Filterer is an auto generated log filtering Go binding around an Ethereum contract events.
 type {{.Type}}Filterer struct {
     contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
 }
+
+func New{{.Type}}Filterer(contract *blockchain.BoundContract) {{.Type}}Filterer {
+    return {{.Type}}Filterer{contract: contract}
+}
+
 {{end}}
 
 {{define "PrimitiveSession"}}

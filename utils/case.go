@@ -3,43 +3,23 @@ package utils
 import (
 	"regexp"
 	"strings"
-	"unicode"
+
+	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
-func ToLowerCase(str string, pos int) string {
-	if pos > len(str) {
-		pos = len(str)
-	} else if pos == 0 {
-		pos = 0
-	}
-
-	runes := []rune(str)
-	if len(str) > 0 {
-		runes[0] = unicode.ToLower(runes[0])
-	}
-	return string(runes)
+// capitalise makes a camel-case string which starts with an upper case character.
+func Capitalise(input string) string {
+	return abi.ToCamelCase(input)
 }
 
-func Decapitalise(str string) string {
-	return ToLowerCase(str, 0)
-}
-
-func ToUpperCase(str string, pos int) string {
-	if pos > len(str) {
-		pos = len(str)
-	} else if pos == 0 {
-		pos = 0
+// decapitalise makes a camel-case string which starts with a lower case character.
+func Decapitalise(input string) string {
+	if len(input) == 0 {
+		return input
 	}
 
-	runes := []rune(str)
-	if len(str) > 0 {
-		runes[pos] = unicode.ToUpper(runes[pos])
-	}
-	return string(runes)
-}
-
-func Capitalize(str string) string {
-	return ToUpperCase(str, 0)
+	goForm := abi.ToCamelCase(input)
+	return strings.ToLower(goForm[:1]) + goForm[1:]
 }
 
 func ToSnakeCase(str string) string {

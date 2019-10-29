@@ -6,7 +6,7 @@
 
 ### install
 ```
-go get github.com/frostornge/solgen
+go get github.com/airbloc/solgen
 ```
 
 ### build

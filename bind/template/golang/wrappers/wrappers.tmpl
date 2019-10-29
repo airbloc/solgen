@@ -1,4 +1,4 @@
-{{define "golang"}}
+{{define "wrappers"}}
 // Code generated - DO NOT EDIT.
 // This file is a generated binding and any manual changes will be lost.
 
@@ -14,33 +14,7 @@ import (
 {{$contract := .Contract}}
 {{$structs := .Contract.Structs}}
 
-//go:generate mockgen -source {{toSnakeCase $contract.Type}}_wrapper.go -destination ./mocks/mock_{{toSnakeCase $contract.Type}}.go -package mocks I{{$contract.Type}}Manager,I{{$contract.Type}}Contract
-type I{{$contract.Type}}Manager interface {
-    Address() common.Address
-    TxHash() common.Hash
-    CreatedAt() *big.Int
-
-    // Call methods
-    I{{$contract.Type}}Calls
-
-    // Transact methods
-    {{range $contract.Transacts}}{{.Normalized.Name}}(
-        ctx context.Context,
-        opts *blockchain.TransactOpts,
-        {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
-        {{end}}) ({{if .Structured}}struct{
-        {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};
-        {{end}}
-    },{{else}}{{range .Normalized.Outputs}}
-        {{bindtype .Type $structs}},{{end}}
-        {{end}} error,
-    )
-    {{end}}
-
-    // Event methods
-    I{{$contract.Type}}Filterer
-    I{{$contract.Type}}Watcher
-}
+//go:generate mockgen -source {{toSnakeCase $contract.Type}}.go -destination ./mocks/mock_{{toSnakeCase $contract.Type}}.go -package mocks I{{$contract.Type}}Contract
 
 type I{{$contract.Type}}Calls interface { {{range $contract.Calls}}
     {{.Normalized.Name}}({{range .Normalized.Inputs}}
@@ -72,18 +46,18 @@ type I{{$contract.Type}}Filterer interface { {{range $contract.Events}}
     Filter{{.Normalized.Name}}(
         opts *bind.FilterOpts,
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
-    {{end}}) (*{{$contract.Type}}{{.Normalized.Name}}Iterator, error){{end}}
+    {{end}}) (blockchain.EventIterator, error){{end}}
 }
 
 type I{{$contract.Type}}Parser interface { {{range $contract.Events}}
-    Parse{{.Normalized.Name}}(log chainTypes.Log) (*{{$contract.Type}}{{.Normalized.Name}}, error)
-    Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*{{$contract.Type}}{{.Normalized.Name}}, error){{end}}
+    Parse{{.Normalized.Name}}(log chainTypes.Log) (*contracts.{{$contract.Type}}{{.Normalized.Name}}, error)
+    Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*contracts.{{$contract.Type}}{{.Normalized.Name}}, error){{end}}
 }
 
 type I{{$contract.Type}}Watcher interface { {{range $contract.Events}}
     Watch{{.Normalized.Name}}(
         opts *bind.WatchOpts,
-        sink chan<- *{{$contract.Type}}{{.Normalized.Name}},
+        sink chan<- *contracts.{{$contract.Type}}{{.Normalized.Name}},
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
     {{end}}) (event.Subscription, error){{end}}
 }
@@ -105,9 +79,9 @@ type {{$contract.Type}}Contract struct {
     createdAt *big.Int
     client    blockchain.TxClient
 
-    {{$contract.Type}}Caller
-    {{$contract.Type}}Filterer
-    {{$contract.Type}}Transactor
+    contracts.{{$contract.Type}}Caller
+    contracts.{{$contract.Type}}Filterer
+    contracts.{{$contract.Type}}Transactor
 }
 
 // Address is getter method of Accounts.address
@@ -125,26 +99,22 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
     return c.createdAt
 }
 
-func new{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    contract := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
+func New{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
+    base := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
 
-    return &{{$contract.Type}}Contract{
+    contract := &{{$contract.Type}}Contract{
         address:   address,
         txHash:    txHash,
         createdAt: createdAt,
         client:    backend.(blockchain.TxClient),
 
-        {{$contract.Type}}Caller: {{$contract.Type}}Caller{contract: contract},
-        {{$contract.Type}}Transactor: {{$contract.Type}}Transactor{contract: contract},
-        {{$contract.Type}}Filterer: {{$contract.Type}}Filterer{contract: contract},
+        {{$contract.Type}}Caller: contracts.New{{$contract.Type}}Caller(base),
+        {{$contract.Type}}Transactor: contracts.New{{$contract.Type}}Transactor(base),
+        {{$contract.Type}}Filterer: contracts.New{{$contract.Type}}Filterer(base),
     }
-}
 
-// convenient hacks for blockchain.Client
-func init() {
-    blockchain.AddContractConstructor("{{$contract.Type}}", new{{$contract.Type}}Contract)
-    {{range $contract.Transacts}}blockchain.RegisterSelector("0x{{printf "%x" .Original.ID}}", "{{.Original.Sig}}")
-{{end}}}
+    return contract
+}
 
 {{range $contract.Calls}}
 // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.

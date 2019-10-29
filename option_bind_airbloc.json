@@ -1,14 +1,89 @@
 {
-  "default":{
-    "bytes8":"types.ID",
-    "bytes8[]":"[]types.ID",
-    "bytes20":"types.DataId",
-    "bytes20[]":"[]types.DataId",
-    "bytes32":"common.Hash"
+  "Accounts": {
+    "Structs": {
+      "(address,uint8,address,address)": "types.Account"
+    },
+    "Methods": {
+      "create":                     true,
+      "createTemporary":            true,
+      "unlockTemporary":            true,
+      "setController":              true,
+      "getAccount":                 true,
+      "getAccountByIdentityHash":   true,
+      "getAccountId":               true,
+      "getAccountIdByIdentityHash": true,
+      "getAccountIdFromSignature":  true,
+      "isTemporary":                true,
+      "isControllerOf":             true,
+      "exists":                     true
+    }
   },
-  "Accounts":{"(address,uint8,address,address)":"types.Account"},
-  "AppRegistry":{"(string,address,address)":"types.App"},
-  "ControllerRegistry":{"(address,uint256)":"types.DataController"},
-  "DataTypeRegistry":{"(string,address,bytes32)":"types.DataType"},
-  "Exchange":{"(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)":"types.Offer"}
+  "AppRegistry": {
+    "Structs": {
+      "(string,address,address)": "types.App"
+    },
+    "Methods": {
+      "register":         true,
+      "unregister":       true,
+      "get":              true,
+      "exists":           true,
+      "isOwner":          true,
+      "transferAppOwner": true
+    }
+  },
+  "ControllerRegistry": {
+    "Structs": {
+      "(address,uint256)": "types.DataController"
+    },
+    "Methods": {
+      "register": true,
+      "get":      true,
+      "exists":   true
+    }
+  },
+  "Consents": {
+    "Structs": {
+      "(uint8,string,bool)": "types.ConsentData",
+      "(uint8,string,bool)[]": "[]types.ConsentData"
+    },
+    "Methods": {
+      "consent":                       true,
+      "consentMany":                   true,
+      "consentByController":           true,
+      "consentManyByController":       true,
+      "modifyConsentByController":     true,
+      "modifyConsentManyByController": true,
+      "isAllowed":                     true,
+      "isAllowedAt":                   true
+    }
+  },
+  "DataTypeRegistry": {
+    "Structs": {
+      "(string,address,bytes32)": "types.DataType"
+    },
+    "Methods": {
+      "register":   true,
+      "unregister": true,
+      "get":        true,
+      "exists":     true,
+      "isOwner":    true
+    }
+  },
+  "Exchange": {
+    "Structs": {
+      "(string,address,bytes20[],uint256,uint256,(address,bytes4,bytes),uint8)": "types.Offer",
+      "(address,bytes4,bytes)":                                                  "types.Escrow"
+    },
+    "Methods": {
+      "prepare":         true,
+      "addDataIds":      true,
+      "order":           true,
+      "cancel":          true,
+      "settle":          true,
+      "reject":          true,
+      "offerExists":     true,
+      "getOffer":        true,
+      "getOfferMembers": true
+    }
+  }
 }
