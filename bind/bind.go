@@ -99,15 +99,13 @@ func Bind(name string, abi string, opt Option) (map[Mode][]byte, error) {
 	}
 	contract.Type = utils.Capitalise(name)
 
-	data := &template.Data{
-		Imports:  platform.MergeImports(platform.Imports[opt.Platform], opt.Customs.Imports),
-		Contract: contract,
-	}
-
 	codes := make(map[Mode][]byte)
 	for _, mode := range Modes {
-		data.Package = string(mode)
-
+		data := &template.Data{
+			Imports:  platform.MergeImports(platform.Imports[opt.Platform], opt.Customs.Imports),
+			Contract: contract,
+			Package:  string(mode),
+		}
 		if mode == Manager {
 			data.Imports = platform.ManagerImports(opt.Platform)
 		}

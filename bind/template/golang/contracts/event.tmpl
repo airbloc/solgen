@@ -4,7 +4,7 @@
     type {{$contract.Type}}{{.Normalized.Name}}Iterator struct {
         Evt *{{$contract.Type}}{{.Normalized.Name}} // Event containing the contract specifics and raw log
 
-        contract *blockchain.BoundContract // Generic contract to use for unpacking event data
+        contract *ablbind.BoundContract // Generic contract to use for unpacking event data
         event    string              // Event name to use for unpacking event data
 
         logs chan chainTypes.Log        // Log channel receiving the found contract events
@@ -77,7 +77,7 @@
     // Filter{{.Normalized.Name}} is a free log retrieval operation binding the contract event 0x{{printf "%x" .Original.ID}}.
     //
     // Solidity: {{formatevent .Original $structs}}
-    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (blockchain.EventIterator, error) {
+    func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Filter{{.Normalized.Name}}(opts *bind.FilterOpts{{range .Normalized.Inputs}}{{if .Indexed}}, {{.Name}} []{{bindtype .Type $structs}}{{end}}{{end}}) (ablbind.EventIterator, error) {
         {{range .Normalized.Inputs}}
         {{if .Indexed}}var {{.Name}}Rule []interface{}
         for _, {{.Name}}Item := range {{.Name}} {

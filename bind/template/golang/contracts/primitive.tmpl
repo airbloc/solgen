@@ -27,28 +27,28 @@ func (_{{.Type}} *{{.Type}}) CreatedAt() *big.Int {
 
 // {{.Type}}Caller is an auto generated read-only Go binding around an Ethereum contract.
 type {{.Type}}Caller struct {
-    contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
+    contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
 }
 
-func New{{.Type}}Caller(contract *blockchain.BoundContract) {{.Type}}Caller {
+func New{{.Type}}Caller(contract *ablbind.BoundContract) {{.Type}}Caller {
     return {{.Type}}Caller{contract: contract}
 }
 
 // {{.Type}}Transactor is an auto generated write-only Go binding around an Ethereum contract.
 type {{.Type}}Transactor struct {
-    contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
+    contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
 }
 
-func New{{.Type}}Transactor(contract *blockchain.BoundContract) {{.Type}}Transactor {
+func New{{.Type}}Transactor(contract *ablbind.BoundContract) {{.Type}}Transactor {
     return {{.Type}}Transactor{contract: contract}
 }
 
 // {{.Type}}Filterer is an auto generated log filtering Go binding around an Ethereum contract events.
 type {{.Type}}Filterer struct {
-    contract *blockchain.BoundContract // Generic contract wrapper for the low level calls
+    contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
 }
 
-func New{{.Type}}Filterer(contract *blockchain.BoundContract) {{.Type}}Filterer {
+func New{{.Type}}Filterer(contract *ablbind.BoundContract) {{.Type}}Filterer {
     return {{.Type}}Filterer{contract: contract}
 }
 
@@ -60,7 +60,7 @@ func New{{.Type}}Filterer(contract *blockchain.BoundContract) {{.Type}}Filterer 
 type {{.Type}}Session struct {
     Contract     *{{.Type}}        // Generic contract binding to set the session for
     CallOpts     bind.CallOpts     // Call options to use throughout this session
-    TransactOpts blockchain.TransactOpts // Transaction auth options to use throughout this session
+    TransactOpts ablbind.TransactOpts // Transaction auth options to use throughout this session
 }
 
 // {{.Type}}CallerSession is an auto generated read-only Go binding around an Ethereum contract,
@@ -74,7 +74,7 @@ type {{.Type}}CallerSession struct {
 // with pre-set transact options.
 type {{.Type}}TransactorSession struct {
     Contract     *{{.Type}}Transactor // Generic contract transactor binding to set the session for
-    TransactOpts blockchain.TransactOpts    // Transaction auth options to use throughout this session
+    TransactOpts ablbind.TransactOpts    // Transaction auth options to use throughout this session
 }
 {{end}}
 
@@ -94,12 +94,12 @@ func (_{{.Type}} *{{.Type}}Raw) Call(opts *bind.CallOpts, result interface{}, me
 
 // Transfer initiates a plain transaction to move funds to the contract, calling
 // its default method if one is available.
-func (_{{.Type}} *{{.Type}}Raw) Transfer(opts *blockchain.TransactOpts) (*chainTypes.Transaction, error) {
+func (_{{.Type}} *{{.Type}}Raw) Transfer(opts *ablbind.TransactOpts) (*chainTypes.Transaction, error) {
     return _{{.Type}}.Contract.{{.Type}}Transactor.contract.Transfer(opts)
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_{{.Type}} *{{.Type}}Raw) Transact(opts *blockchain.TransactOpts, method string, params ...interface{}) (*chainTypes.Transaction, error) {
+func (_{{.Type}} *{{.Type}}Raw) Transact(opts *ablbind.TransactOpts, method string, params ...interface{}) (*chainTypes.Transaction, error) {
     return _{{.Type}}.Contract.{{.Type}}Transactor.contract.Transact(opts, method, params...)
 }
 
@@ -123,12 +123,12 @@ type {{.Type}}TransactorRaw struct {
 
 // Transfer initiates a plain transaction to move funds to the contract, calling
 // its default method if one is available.
-func (_{{.Type}} *{{.Type}}TransactorRaw) Transfer(opts *blockchain.TransactOpts) (*chainTypes.Transaction, error) {
+func (_{{.Type}} *{{.Type}}TransactorRaw) Transfer(opts *ablbind.TransactOpts) (*chainTypes.Transaction, error) {
     return _{{.Type}}.Contract.contract.Transfer(opts)
 }
 
 // Transact invokes the (paid) contract method with params as input values.
-func (_{{.Type}} *{{.Type}}TransactorRaw) Transact(opts *blockchain.TransactOpts, method string, params ...interface{}) (*chainTypes.Transaction, error) {
+func (_{{.Type}} *{{.Type}}TransactorRaw) Transact(opts *ablbind.TransactOpts, method string, params ...interface{}) (*chainTypes.Transaction, error) {
     return _{{.Type}}.Contract.contract.Transact(opts, method, params...)
 }
 {{end}}

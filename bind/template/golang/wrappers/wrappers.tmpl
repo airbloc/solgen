@@ -1,7 +1,4 @@
 {{define "wrappers"}}
-// Code generated - DO NOT EDIT.
-// This file is a generated binding and any manual changes will be lost.
-
 package {{.Package}}
 
 import (
@@ -31,7 +28,7 @@ type I{{$contract.Type}}Calls interface { {{range $contract.Calls}}
 type I{{$contract.Type}}Transacts interface { {{range $contract.Transacts}}
     {{.Normalized.Name}}(
         ctx context.Context,
-        opts *blockchain.TransactOpts,
+        opts *ablbind.TransactOpts,
         {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
     {{end}}) (*chainTypes.Receipt, error){{end}}
 }
@@ -46,7 +43,7 @@ type I{{$contract.Type}}Filterer interface { {{range $contract.Events}}
     Filter{{.Normalized.Name}}(
         opts *bind.FilterOpts,
         {{range .Normalized.Inputs}}{{if .Indexed}}{{.Name}} []{{bindtype .Type $structs}},{{end}}
-    {{end}}) (blockchain.EventIterator, error){{end}}
+    {{end}}) (ablbind.EventIterator, error){{end}}
 }
 
 type I{{$contract.Type}}Parser interface { {{range $contract.Events}}
@@ -77,7 +74,7 @@ type {{$contract.Type}}Contract struct {
     address   common.Address
     txHash    common.Hash
     createdAt *big.Int
-    client    blockchain.TxClient
+    client    ablbind.ContractBackend
 
     contracts.{{$contract.Type}}Caller
     contracts.{{$contract.Type}}Filterer
@@ -99,14 +96,14 @@ func (c *{{$contract.Type}}Contract) CreatedAt() *big.Int {
     return c.createdAt
 }
 
-func New{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend bind.ContractBackend) interface{} {
-    base := blockchain.NewBoundContract(address, parsedABI, backend, backend, backend)
+func New{{$contract.Type}}Contract(address common.Address, txHash common.Hash, createdAt *big.Int, parsedABI abi.ABI, backend ablbind.ContractBackend) interface{} {
+    base := ablbind.NewBoundContract(address, parsedABI, backend)
 
     contract := &{{$contract.Type}}Contract{
         address:   address,
         txHash:    txHash,
         createdAt: createdAt,
-        client:    backend.(blockchain.TxClient),
+        client:    backend,
 
         {{$contract.Type}}Caller: contracts.New{{$contract.Type}}Caller(base),
         {{$contract.Type}}Transactor: contracts.New{{$contract.Type}}Transactor(base),
@@ -140,11 +137,11 @@ func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(
 // Solidity: {{.Original.String}}
 func (c *{{$contract.Type}}Contract) {{.Normalized.Name}}(
     ctx context.Context,
-    opts *blockchain.TransactOpts,
+    opts *ablbind.TransactOpts,
     {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
 {{end}}) (*chainTypes.Receipt, error) {
     if opts == nil {
-        opts = &blockchain.TransactOpts{TxType: chainTypes.TxTypeSmartContractExecution}
+        opts = &ablbind.TransactOpts{TxType: chainTypes.TxTypeSmartContractExecution}
     }
 
     tx, err := c.{{$contract.Type}}Transactor.{{.Normalized.Name}}(c.client.Account(ctx, opts){{range .Normalized.Inputs}}, {{.Name}}{{end}})

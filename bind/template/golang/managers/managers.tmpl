@@ -1,7 +1,4 @@
 {{define "managers"}}
-// Code generated - DO NOT EDIT.
-// This file is a generated binding and any manual changes will be lost.
-
 package {{.Package}}
 
 import (
@@ -27,7 +24,7 @@ type I{{$contract.Type}}Manager interface {
     // Transact methods
     {{range $contract.Transacts}}{{.Normalized.Name}}(
         ctx context.Context,
-        opts *blockchain.TransactOpts,
+        opts *ablbind.TransactOpts,
         {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
         {{end}}) ({{if .Structured}}struct{
         {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};
@@ -46,12 +43,12 @@ type I{{$contract.Type}}Manager interface {
 // {{decapitalise $contract.Type}}Manager is contract wrapper struct
 type {{decapitalise $contract.Type}}Manager struct {
     wrappers.I{{$contract.Type}}Contract
-    client blockchain.TxClient
+    client ablbind.ContractBackend
     log    *logger.Logger
 }
 
 // New{{$contract.Type}}Manager makes new *{{decapitalise $contract.Type}}Manager struct
-func New{{$contract.Type}}Manager(client blockchain.TxClient, contract interface{}) interface{} {
+func New{{$contract.Type}}Manager(client ablbind.ContractBackend, contract interface{}) interface{} {
     return &{{decapitalise $contract.Type}}Manager{
         I{{$contract.Type}}Contract: contract.(*wrappers.{{$contract.Type}}Contract),
         client:            client,
@@ -66,7 +63,7 @@ func New{{$contract.Type}}Manager(client blockchain.TxClient, contract interface
 
 func (manager *{{decapitalise $contract.Type}}Manager) {{.Normalized.Name}}(
     ctx context.Context,
-    opts *blockchain.TransactOpts,
+    opts *ablbind.TransactOpts,
     {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
     {{end}}) ({{if .Structured}}struct{
     {{range .Normalized.Outputs}}{{.Name}} {{bindtype .Type $structs}};

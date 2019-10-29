@@ -1,6 +1,7 @@
 package platform
 
 var AirblocDependencies = map[string]string{
-	"types":      "github.com/airbloc/airbloc-go/shared/types",
-	"blockchain": "github.com/airbloc/contract-sdk/blockchain",
+	"logger":  "github.com/airbloc/logger",
+	"ablbind": "github.com/airbloc/contract-sdk/bind",
+	"types":   "github.com/airbloc/contract-sdk/bind/types",
 }
