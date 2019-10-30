@@ -111,14 +111,14 @@
                 select {
                 case log := <-logs:
                     // New log arrived, parse the event and forward to the user
-                    event := new({{$contract.Type}}{{.Normalized.Name}})
-                    if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Original.Name}}", log); err != nil {
+                    evt := new({{$contract.Type}}{{.Normalized.Name}})
+                    if err := _{{$contract.Type}}.contract.UnpackLog(evt, "{{.Original.Name}}", log); err != nil {
                         return err
                     }
-                    event.Raw = log
+                    evt.Raw = log
 
                     select {
-                    case sink <- event:
+                    case sink <- evt:
                     case err := <-sub.Err():
                         return err
                     case <-quit:
@@ -137,32 +137,32 @@
     //
     // Solidity: {{.Original.String}}
     func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}(log chainTypes.Log) (*{{$contract.Type}}{{.Normalized.Name}}, error) {
-        event := new({{$contract.Type}}{{.Normalized.Name}})
-        if err := _{{$contract.Type}}.contract.UnpackLog(event, "{{.Original.Name}}", log); err != nil {
+        evt := new({{$contract.Type}}{{.Normalized.Name}})
+        if err := _{{$contract.Type}}.contract.UnpackLog(evt, "{{.Original.Name}}", log); err != nil {
             return nil, err
         }
-        return event, nil
+        return evt, nil
     }
 
     // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
     //
     // Solidity: {{.Original.String}}
     func (_{{$contract.Type}} *{{$contract.Type}}Filterer) Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*{{$contract.Type}}{{.Normalized.Name}}, error) {
-        var events []*{{$contract.Type}}{{.Normalized.Name}}
+        var evts []*{{$contract.Type}}{{.Normalized.Name}}
         for _, log := range receipt.Logs {
             if log.Topics[0] == common.HexToHash("0x{{printf "%x" .Original.ID}}") {
-                event, err := _{{$contract.Type}}.Parse{{.Normalized.Name}}(*log)
+                evt, err := _{{$contract.Type}}.Parse{{.Normalized.Name}}(*log)
                 if err != nil {
                     return nil, err
                 }
-                events = append(events, event)
+                evts = append(evts, evt)
             }
         }
 
-        if len(events) == 0 {
+        if len(evts) == 0 {
             return nil, errors.New("{{.Original.Name}} event not found")
         }
-        return events, nil
+        return evts, nil
     }
 
 {{end}}{{end}}
