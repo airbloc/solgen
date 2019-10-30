@@ -15,9 +15,32 @@ import (
     // {{.Type}}ABI is the input ABI used to generate the binding from.
     const {{.Type}}ABI = "{{.InputABI}}"
 
-    {{template "PrimitiveContract" .}}
-    {{template "PrimitiveSession" .}}
-    {{template "PrimitiveRaw" .}}
+    // {{.Type}}Caller is an auto generated read-only Go binding around an Ethereum contract.
+    type {{.Type}}Caller struct {
+        contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    func New{{.Type}}Caller(contract *ablbind.BoundContract) {{.Type}}Caller {
+        return {{.Type}}Caller{contract: contract}
+    }
+
+    // {{.Type}}Transactor is an auto generated write-only Go binding around an Ethereum contract.
+    type {{.Type}}Transactor struct {
+        contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    func New{{.Type}}Transactor(contract *ablbind.BoundContract) {{.Type}}Transactor {
+        return {{.Type}}Transactor{contract: contract}
+    }
+
+    // {{.Type}}Filterer is an auto generated log filtering Go binding around an Ethereum contract events.
+    type {{.Type}}Filterer struct {
+        contract *ablbind.BoundContract // Generic contract wrapper for the low level calls
+    }
+
+    func New{{.Type}}Filterer(contract *ablbind.BoundContract) {{.Type}}Filterer {
+        return {{.Type}}Filterer{contract: contract}
+    }
 
     {{template "MethodCalls" .}}
     {{template "MethodTransacts" .}}
