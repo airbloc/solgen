@@ -109,7 +109,7 @@ func Bind(name string, deployment deployment.Deployment, opt Option) (map[Mode][
 		}
 		if mode == Wrapper {
 			data.Imports = platform.MergeImports(data.Imports, map[string]string{
-				"contracts": "github.com/airbloc/contract-sdk/bind/contracts",
+				"contracts": "github.com/airbloc/airbloc-go/bind/contracts",
 			})
 		}
 		if mode == Manager {
