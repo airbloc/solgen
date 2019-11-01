@@ -45,7 +45,7 @@ func main() {
 
 	for name, deployment := range deployments {
 		codes, err := bind.Bind(
-			name, deployment.RawABI,
+			name, deployment,
 			bind.Option{
 				Customs:  customs[name],
 				Platform: platform.Klaytn,
@@ -54,6 +54,7 @@ func main() {
 		)
 		if err != nil {
 			log.Println(err)
+			continue
 		}
 
 		for _, mode := range bind.Modes {

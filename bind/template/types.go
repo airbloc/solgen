@@ -29,7 +29,10 @@ type Data struct {
 
 // Contract contains the data needed to generate an individual contract binding.
 type Contract struct {
-	Type        string             // Type name of the main contract binding
+	Type        string // Type name of the main contract binding
+	Address     string
+	TxHash      string
+	CreatedAt   string
 	InputABI    string             // JSON ABI used as the input to generate the binding from
 	Constructor abi.Method         // Contract constructor for deploy parametrization
 	Calls       map[string]*Method // Contract calls that only read state data

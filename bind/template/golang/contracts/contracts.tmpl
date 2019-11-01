@@ -15,7 +15,12 @@ import (
     {{$contract := .}}{{$structs := .Structs}}
 
     // {{.Type}}ABI is the input ABI used to generate the binding from.
-    const {{.Type}}ABI = "{{.InputABI}}"
+    const (
+        {{.Type}}Address = "{{.Address}}"
+        {{.Type}}TxHash = "{{.TxHash}}"
+        {{.Type}}CreatedAt = "{{.CreatedAt}}"
+        {{.Type}}ABI = "{{.InputABI}}"
+    )
 
     // {{.Type}}Caller is an auto generated read-only Go binding around an Ethereum contract.
     type {{.Type}}Caller struct {

@@ -1,18 +1,23 @@
 package bind
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
-	"strings"
 	"unicode"
 
 	"github.com/airbloc/solgen/bind/language"
 	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/deployment"
 	"github.com/airbloc/solgen/utils"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/common"
 )
 
-func parseContract(evmABI abi.ABI, customs Customs, lang language.Language) (*template.Contract, error) {
+func parseContract(deployment deployment.Deployment, customs Customs, lang language.Language) (*template.Contract, error) {
+	evmABI := deployment.EvmABI
+
 	// Extract the call and transact methods; events, struct definitions; and sort them alphabetically
 	var (
 		calls     = make(map[string]*template.Method)
@@ -102,37 +107,38 @@ func parseContract(evmABI abi.ABI, customs Customs, lang language.Language) (*te
 	}
 
 	contract := &template.Contract{
+		Address:     deployment.Address.Hex(),
+		TxHash:      deployment.TxHash.Hex(),
+		CreatedAt:   common.BytesToHash(deployment.CreatedAt.Bytes()).Hex(),
 		Constructor: evmABI.Constructor,
 		Calls:       calls,
 		Transacts:   transacts,
 		Events:      events,
 		Structs:     structs,
 	}
+
 	return contract, nil
 }
 
 func getContract(
-	rawABI string,
+	deployment deployment.Deployment,
 	customs Customs,
 	lang language.Language,
 ) (*template.Contract, error) {
 	// ABI
-	evmABI, err := abi.JSON(strings.NewReader(rawABI))
-	if err != nil {
-		return nil, err
-	}
-
-	strippedABI := strings.Map(func(r rune) rune {
+	strippedABI := bytes.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
 			return -1
 		}
 		return r
-	}, rawABI)
+	}, deployment.RawABI)
+	strippedABI = bytes.ReplaceAll(strippedABI, []byte("\""), []byte("\\\""))
 
-	contract, err := parseContract(evmABI, customs, lang)
+	contract, err := parseContract(deployment, customs, lang)
 	if err != nil {
 		return nil, err
 	}
-	contract.InputABI = strings.Replace(strippedABI, "\"", "\\\"", -1)
+	contract.InputABI = string(strippedABI)
+
 	return contract, nil
 }

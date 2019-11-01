@@ -31,6 +31,7 @@ import (
 	"github.com/airbloc/solgen/bind/language"
 	"github.com/airbloc/solgen/bind/platform"
 	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/deployment"
 	"github.com/airbloc/solgen/utils"
 )
 
@@ -92,8 +93,8 @@ func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} 
 	}
 }
 
-func Bind(name string, abi string, opt Option) (map[Mode][]byte, error) {
-	contract, err := getContract(abi, opt.Customs, opt.Language)
+func Bind(name string, deployment deployment.Deployment, opt Option) (map[Mode][]byte, error) {
+	contract, err := getContract(deployment, opt.Customs, opt.Language)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +106,11 @@ func Bind(name string, abi string, opt Option) (map[Mode][]byte, error) {
 			Imports:  platform.MergeImports(platform.Imports[opt.Platform], opt.Customs.Imports),
 			Contract: contract,
 			Package:  string(mode),
+		}
+		if mode == Wrapper {
+			data.Imports = platform.MergeImports(data.Imports, map[string]string{
+				"contracts": "github.com/airbloc/contract-sdk/bind/contracts",
+			})
 		}
 		if mode == Manager {
 			data.Imports = platform.ManagerImports(opt.Platform)
