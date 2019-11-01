@@ -108,6 +108,15 @@ func New{{$contract.Type}}Contract(deployment ablbind.Deployment, backend ablbin
     return contract
 }
 
+func (c *{{$contract.Type}}Contract) GetSelectors() map[string]string {
+    selectors := make(map[string]string)
+    {{range $contract.Calls}}selectors["0x{{printf "%x" .Original.ID}}"] = "{{.Original.Sig}}"
+    {{end}}
+    {{range $contract.Transacts}}selectors["0x{{printf "%x" .Original.ID}}"] = "{{.Original.Sig}}"
+    {{end}}
+    return selectors
+}
+
 {{range $contract.Calls}}
 // {{.Normalized.Name}} is a free data retrieval call binding the contract method 0x{{printf "%x" .Original.ID}}.
 //
