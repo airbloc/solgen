@@ -14,7 +14,7 @@ var Imports = map[Platform]map[string]string{
 
 func ManagerImports(plat Platform) map[string]string {
 	return MergeImports(map[string]string{
-		"wrappers": "github.com/airbloc/contract-sdk/bind/wrappers",
+		"wrappers": "github.com/airbloc/airbloc-go/bind/wrappers",
 		"common":   Imports[plat]["common"],
 		"errors":   "github.com/pkg/errors",
 	}, AirblocDependencies)
