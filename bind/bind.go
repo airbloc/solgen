@@ -40,13 +40,13 @@ type Mode string
 const (
 	Contract Mode = "contracts"
 	Manager  Mode = "managers"
-	Wrapper  Mode = "wrappers"
+	//Wrapper  Mode = "wrappers"
 )
 
 var Modes = []Mode{
 	Contract,
 	Manager,
-	Wrapper,
+	//Wrapper,
 }
 
 func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} {
@@ -74,20 +74,6 @@ func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} 
 			"decapitalise": utils.Decapitalise,
 			"toSnakeCase":  utils.ToSnakeCase,
 		}
-	case Wrapper:
-		return map[string]interface{}{
-			// from lang package
-			"bindtype":      language.BindType[lang],
-			"bindtopictype": language.BindTopicType[lang],
-			"namedtype":     language.NamedType[lang],
-
-			// from utils package
-			"formatmethod": utils.FormatMethod,
-			"formatevent":  utils.FormatEvent,
-			"capitalise":   utils.Capitalise,
-			"decapitalise": utils.Decapitalise,
-			"toSnakeCase":  utils.ToSnakeCase,
-		}
 	default:
 		return nil
 	}
@@ -107,11 +93,11 @@ func Bind(name string, deployment deployment.Deployment, opt Option) (map[Mode][
 			Contract: contract,
 			Package:  string(mode),
 		}
-		if mode == Wrapper {
-			data.Imports = platform.MergeImports(data.Imports, map[string]string{
-				"contracts": "github.com/airbloc/airbloc-go/bind/contracts",
-			})
-		}
+		//if mode == Wrapper {
+		//	data.Imports = platform.MergeImports(data.Imports, map[string]string{
+		//		"contracts": "github.com/airbloc/airbloc-go/bind/contracts",
+		//	})
+		//}
 		if mode == Manager {
 			data.Imports = platform.ManagerImports(opt.Platform)
 		}
