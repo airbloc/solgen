@@ -178,7 +178,7 @@
             return evt, nil
         }
 
-        // Filter{{.Normalized.Name}} parses the event from given transaction receipt.
+        // Parse{{.Normalized.Name}}FromReceipt parses the event from given transaction receipt.
         //
         // Solidity: {{.Original.String}}
         func (_{{$contract.Type}} *{{decapitalise $contract.Type}}Events) Parse{{.Normalized.Name}}FromReceipt(receipt *chainTypes.Receipt) ([]*{{$contract.Type}}{{.Normalized.Name}}, error) {
