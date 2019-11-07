@@ -22,7 +22,7 @@
             opts *ablbind.TransactOpts,
             {{range .Normalized.Inputs}}{{.Name}} {{bindtype .Type $structs}},
         {{end}}) (*chainTypes.Receipt, error) {
-            tx, err := _{{$contract.Type}}.contract.Transact(_{{$contract.Type}}.backend.Transactor(ctx, opts), "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
+            tx, err := _{{$contract.Type}}.contract.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
             if err != nil {
                 return nil, err
             }
