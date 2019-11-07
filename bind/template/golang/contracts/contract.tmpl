@@ -37,7 +37,7 @@ import (
     }
 
     func New{{$contract.Type}}Contract(backend ablbind.ContractBackend) (*{{$contract.Type}}Contract, error) {
-        deployment, exist := backend.GetDeployment("{{$contract.Type}}")
+        deployment, exist := backend.Deployment("{{$contract.Type}}")
         if !exist {
             evmABI, err := abi.JSON(strings.NewReader({{$contract.Type}}ABI))
             if err != nil {
