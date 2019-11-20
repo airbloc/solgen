@@ -27,11 +27,7 @@
             }
             opts.Context = ctx
 
-            tx, err := _{{$contract.Type}}.contract.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
-            if err != nil {
-                return nil, err
-            }
-            return _{{$contract.Type}}.backend.WaitMined(ctx, tx)
+            return _{{$contract.Type}}.contract.Transact(opts, "{{.Original.Name}}" {{range .Normalized.Inputs}}, {{.Name}}{{end}})
         }
     {{end}}
 {{end}}
