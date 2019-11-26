@@ -40,8 +40,18 @@ func parseContract(deployment deployment.Deployment, customs Customs, lang langu
 			if input.Name == "" {
 				normalized.Inputs[j].Name = fmt.Sprintf("arg%d", j)
 			}
-			if _, exist := structs[input.Type.String()]; input.Type.T == abi.TupleTy && !exist {
-				language.BindStructType[lang](input.Type, structs)
+
+			_, exist := structs[input.Type.String()]
+			if !exist {
+				switch input.Type.T {
+				case abi.TupleTy:
+					language.BindStructType[lang](input.Type, structs)
+				case abi.SliceTy:
+					// 예외 케이스 - tuple[]
+					if input.Type.Elem.T == abi.TupleTy {
+						language.BindStructType[lang](input.Type, structs)
+					}
+				}
 			}
 		}
 		normalized.Outputs = make([]abi.Argument, len(original.Outputs))
