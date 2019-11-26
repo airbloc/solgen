@@ -54,7 +54,7 @@ func New{{$contract.Type}}Manager(backend ablbind.ContractBackend) ({{$contract.
 
     return &{{decapitalise $contract.Type}}Manager{
         {{$contract.Type}}Contract: contract,
-        client:                     client,
+        client:                     backend,
         log:                        logger.New("{{toSnakeCase $contract.Type}}"),
     }, nil
 }
