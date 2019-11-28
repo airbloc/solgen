@@ -13,10 +13,44 @@ import (
 	"github.com/airbloc/solgen/bind/platform"
 	"github.com/airbloc/solgen/deployment"
 	"github.com/airbloc/solgen/utils"
+
+	"github.com/spf13/cobra"
 )
 
+var (
+	config    = NewConfig()
+	cmdConfig = Config{}
+
+	rootCmd = &cobra.Command{
+		Use:   "solgen",
+		Short: "Golang ABI bind generator for Airbloc",
+	}
+)
+
+func init() {
+	solgenCmd := &cobra.Command{
+		Use:   "run",
+		Short: "Generate bind",
+		Run:   func(cmd *cobra.Command, args []string) { run() },
+	}
+
+	cobra.OnInitialize(initConfig)
+
+	flags := solgenCmd.PersistentFlags()
+	flags.StringVar(&cmdConfig.DeploymentPath, "deployment", "http://localhost:8500", "endpoint of deployment")
+	flags.StringVar(&cmdConfig.OptionPath, "opt", "", "path of custom bind options")
+	flags.StringVar(&cmdConfig.OutputPath, "out", "", "path of generated output")
+
+	rootCmd.AddCommand(solgenCmd)
+}
+
+func initConfig() {
+	// merge config
+}
+
 func main() {
-	deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
+	deployments, err := deployment.GetDeploymentsFrom("cmd/solgen/deployment.test.json")
+	//deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
 	if err != nil {
 		panic(err)
 	}
@@ -74,4 +108,8 @@ func main() {
 		}
 	}
 	//bind.Bind()
+}
+
+func run() {
+
 }
