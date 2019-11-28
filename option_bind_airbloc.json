@@ -1,4 +1,27 @@
 {
+  "ABL": {
+    "Methods": {
+      "transfer": true,
+      "transferFrom": true,
+      "approve": true,
+      "mint": true,
+      "balanceOf": true
+    }
+  },
+  "MassTransfer": {
+    "Structs": {
+      "(address,uint256)": "types.TransferData",
+      "(address,uint256)[]": "[]types.TransferData"
+    },
+    "Methods": {
+      "transferMany": true,
+      "withdrawToken": true,
+      "withdrawAllToken": true,
+      "isOwner": true,
+      "renounceOwnership": true,
+      "transferOwnership": true
+    }
+  },
   "Accounts": {
     "Structs": {
       "(address,uint8,address,address)": "types.Account"
