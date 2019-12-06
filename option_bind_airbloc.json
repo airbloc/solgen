@@ -22,46 +22,43 @@
       "transferOwnership": true
     }
   },
-  "Accounts": {
+  "Users": {
     "Structs": {
-      "(address,uint8,address,address)": "types.Account"
+      "(address,address,uint8)": "types.User"
     },
     "Methods": {
-      "create":                     true,
-      "createTemporary":            true,
-      "unlockTemporary":            true,
-      "setController":              true,
-      "getAccount":                 true,
-      "getAccountByIdentityHash":   true,
-      "getAccountId":               true,
-      "getAccountIdByIdentityHash": true,
-      "getAccountIdFromSignature":  true,
-      "isTemporary":                true,
-      "isControllerOf":             true,
-      "exists":                     true
+      "create":              true,
+      "createTemporary":     true,
+      "unlockTemporary":     true,
+      "setController":       true,
+      "get":                 true,
+      "getByIdentityHash":   true,
+      "getId":               true,
+      "getIdByIdentityHash": true,
+      "isTemporary":         true,
+      "isControllerOf":      true,
+      "exists":              true
     }
   },
   "AppRegistry": {
     "Structs": {
-      "(string,address,address)": "types.App"
+      "(string,address)": "types.App"
     },
     "Methods": {
       "register":         true,
       "unregister":       true,
       "get":              true,
+      "getId":            true,
       "exists":           true,
       "isOwner":          true,
       "transferAppOwner": true
     }
   },
   "ControllerRegistry": {
-    "Structs": {
-      "(address,uint256)": "types.DataController"
-    },
     "Methods": {
-      "register": true,
-      "get":      true,
-      "exists":   true
+      "register":     true,
+      "unregister":   true,
+      "isController": true
     }
   },
   "Consents": {
@@ -72,10 +69,6 @@
     "Methods": {
       "consent":                       true,
       "consentMany":                   true,
-      "consentByController":           true,
-      "consentManyByController":       true,
-      "modifyConsentByController":     true,
-      "modifyConsentManyByController": true,
       "isAllowed":                     true,
       "isAllowedAt":                   true
     }
