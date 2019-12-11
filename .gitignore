@@ -2,6 +2,7 @@
 # Edit at https://www.gitignore.io/?templates=go,code,macos,windows
 
 .idea
+build
 test/proto
 test/ethereum
 test/klaytn
