@@ -65,7 +65,7 @@ func run() {
 
 	customs := make(map[string]bind.Customs)
 	if config.OptionPath != "" {
-		opt, err := ioutil.ReadFile("option_bind_airbloc.json")
+		opt, err := ioutil.ReadFile(config.OptionPath)
 		if err != nil {
 			panic(err)
 		}
