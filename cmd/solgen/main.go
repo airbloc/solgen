@@ -24,24 +24,20 @@ var (
 	rootCmd = &cobra.Command{
 		Use:   "solgen",
 		Short: "Golang ABI bind generator for Airbloc",
+		Long: "Solgen is a tool for generate solidity binds." +
+			"This application helps to generate go/proto bind of solidity.",
+		Version: "v0.1.3",
+		Run:     func(cmd *cobra.Command, args []string) { run() },
 	}
 )
 
 func init() {
-	solgenCmd := &cobra.Command{
-		Use:   "run",
-		Short: "Generate bind",
-		Run:   func(cmd *cobra.Command, args []string) { run() },
-	}
-
 	cobra.OnInitialize(initConfig)
 
-	flags := solgenCmd.PersistentFlags()
-	flags.StringVar(&cmdConfig.DeploymentPath, "deployment", "", "endpoint of deployment")
+	flags := rootCmd.PersistentFlags()
+	flags.StringVar(&cmdConfig.DeploymentPath, "deployment", "", "path of deployment (json)")
 	flags.StringVar(&cmdConfig.OptionPath, "opt", "", "path of custom bind options")
 	flags.StringVar(&cmdConfig.OutputPath, "out", "./build", "path of generated output")
-
-	rootCmd.AddCommand(solgenCmd)
 }
 
 func initConfig() {
