@@ -37,49 +37,57 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	flags := solgenCmd.PersistentFlags()
-	flags.StringVar(&cmdConfig.DeploymentPath, "deployment", "http://localhost:8500", "endpoint of deployment")
+	flags.StringVar(&cmdConfig.DeploymentPath, "deployment", "", "endpoint of deployment")
 	flags.StringVar(&cmdConfig.OptionPath, "opt", "", "path of custom bind options")
-	flags.StringVar(&cmdConfig.OutputPath, "out", "", "path of generated output")
+	flags.StringVar(&cmdConfig.OutputPath, "out", "./build", "path of generated output")
 
 	rootCmd.AddCommand(solgenCmd)
 }
 
 func initConfig() {
 	// merge config
+	if config.DeploymentPath == "" || cmdConfig.DeploymentPath != "" {
+		config.DeploymentPath = cmdConfig.DeploymentPath
+	}
+	if config.OptionPath == "" || cmdConfig.OptionPath != "" {
+		config.OptionPath = cmdConfig.OptionPath
+	}
+	if config.OutputPath == "" || cmdConfig.OutputPath != "" {
+		config.OutputPath = cmdConfig.OutputPath
+	}
+
+	if config.DeploymentPath == "" {
+		panic("deployment path needed")
+	}
 }
 
-func main() {
-	deployments, err := deployment.GetDeploymentsFrom("cmd/solgen/deployment.test.json")
-	//deployments, err := deployment.GetDeploymentsFrom("http://localhost:8500")
+func run() {
+	deployments, err := deployment.GetDeploymentsFrom(config.DeploymentPath)
 	if err != nil {
 		panic(err)
 	}
 
 	customs := make(map[string]bind.Customs)
-	opt, err := ioutil.ReadFile("option_bind_airbloc.json")
-	if err != nil {
-		panic(err)
-	}
+	if config.OptionPath != "" {
+		opt, err := ioutil.ReadFile("option_bind_airbloc.json")
+		if err != nil {
+			panic(err)
+		}
 
-	if err := json.Unmarshal(opt, &customs); err != nil {
-		panic(err)
-	}
-
-	base := "test/bind"
-
-	if err := os.RemoveAll(base); err != nil {
-		panic(err)
-	}
-
-	for _, mode := range bind.Modes {
-		if err := os.MkdirAll(path.Join(base, string(mode)), os.ModePerm); err != nil {
+		if err := json.Unmarshal(opt, &customs); err != nil {
 			panic(err)
 		}
 	}
 
-	for name, deployment := range deployments {
+	for _, mode := range bind.Modes {
+		if err := os.MkdirAll(path.Clean(path.Join(config.OutputPath, string(mode))), os.ModePerm); err != nil {
+			panic(err)
+		}
+	}
+
+	for name, contract := range deployments {
 		codes, err := bind.Bind(
-			name, deployment,
+			name, contract,
 			bind.Option{
 				Customs:  customs[name],
 				Platform: platform.Klaytn,
@@ -98,18 +106,16 @@ func main() {
 				continue
 			}
 
-			func() {
-				filename := filepath.Join(base, string(mode), utils.ToSnakeCase(name)+".go")
-				if err := ioutil.WriteFile(filename, code, os.ModePerm); err != nil {
-					log.Println(err)
-					return
-				}
-			}()
+			filename := filepath.Clean(filepath.Join(config.OutputPath, string(mode), utils.ToSnakeCase(name)+".go"))
+			if err := ioutil.WriteFile(filename, code, os.ModePerm); err != nil {
+				log.Println(err)
+			}
 		}
 	}
-	//bind.Bind()
 }
 
-func run() {
-
+func main() {
+	if err := rootCmd.Execute(); err != nil {
+		panic(err)
+	}
 }
