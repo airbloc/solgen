@@ -24,7 +24,7 @@ var (
 	rootCmd = &cobra.Command{
 		Use:   "solgen",
 		Short: "Golang ABI bind generator for Airbloc",
-		Long: "Solgen is a tool for generate solidity binds." +
+		Long: "Solgen is a tool for generate solidity binds.\n" +
 			"This application helps to generate go/proto bind of solidity.",
 		Version: "v0.1.3",
 		Run:     func(cmd *cobra.Command, args []string) { run() },
