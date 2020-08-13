@@ -1,3 +1,6 @@
+package contracts
+
+const Caller = `
 {{define "Caller"}}{{$contract := .}}{{$structs := .Structs}}
     // {{$contract.Type}}Caller is an auto generated read-only Go binding around an Ethereum contract.
     type {{$contract.Type}}Caller interface { {{range $contract.Calls}}
@@ -39,3 +42,4 @@
         }
     {{end}}
 {{end}}
+`

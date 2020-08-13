@@ -1,3 +1,6 @@
+package managers
+
+const Managers = `
 {{define "managers"}}
 package {{.Package}}
 
@@ -42,7 +45,7 @@ type {{$contract.Type}}Manager interface {
 type {{decapitalise $contract.Type}}Manager struct {
     *contracts.{{$contract.Type}}Contract
     client ablbind.ContractBackend
-    log    *logger.Logger
+    log    logger.Logger
 }
 
 // New{{$contract.Type}}Manager makes new *{{decapitalise $contract.Type}}Manager struct
@@ -77,3 +80,4 @@ func (manager *{{decapitalise $contract.Type}}Manager) {{.Normalized.Name}}(
     return {{if .Structured}}nil,{{else}}{{range .Normalized.Outputs}}nil,{{end}}{{end}} nil
 }
 {{end}}{{end}}
+`

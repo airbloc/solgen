@@ -1,3 +1,6 @@
+package contracts
+
+const Transactor = `
 {{define "Transactor"}}{{$contract := .}}{{$structs := .Structs}}
     // {{$contract.Type}}Transactor is an auto generated write-only Go binding around an Ethereum contract.
     type {{$contract.Type}}Transactor interface { {{range $contract.Transacts}}
@@ -31,3 +34,4 @@
         }
     {{end}}
 {{end}}
+`

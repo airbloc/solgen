@@ -1,3 +1,6 @@
+package contracts
+
+const Filterer = `
 {{define "Filterer"}}{{$contract := .}}{{$structs := .Structs}}
     type {{$contract.Type}}Events interface {
         {{$contract.Type}}EventFilterer
@@ -200,3 +203,4 @@
         }
     {{end}}
 {{end}}
+`

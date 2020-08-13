@@ -24,13 +24,12 @@ import (
 	"bytes"
 	"fmt"
 	"go/format"
-	"path"
-	"path/filepath"
 	tmpl "text/template"
 
 	"github.com/airbloc/solgen/bind/language"
 	"github.com/airbloc/solgen/bind/platform"
 	"github.com/airbloc/solgen/bind/template"
+	"github.com/airbloc/solgen/bind/template/golang"
 	"github.com/airbloc/solgen/deployment"
 	"github.com/airbloc/solgen/utils"
 )
@@ -40,13 +39,11 @@ type Mode string
 const (
 	Contract Mode = "contracts"
 	Manager  Mode = "managers"
-	//Wrapper  Mode = "wrappers"
 )
 
 var Modes = []Mode{
 	Contract,
 	Manager,
-	//Wrapper,
 }
 
 func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} {
@@ -79,6 +76,20 @@ func getInternalFuncs(mode Mode, lang language.Language) map[string]interface{} 
 	}
 }
 
+func getTemplate(mode Mode, lang language.Language) string {
+	switch mode {
+	case Contract:
+		if lang == language.Go {
+			return golang.GetContractTemplate()
+		}
+	case Manager:
+		if lang == language.Go {
+			return golang.GetManagerTamplate()
+		}
+	}
+	return ""
+}
+
 func Bind(name string, deployment deployment.Deployment, opt Option) (map[Mode][]byte, error) {
 	contract, err := getContract(deployment, opt.Customs, opt.Language)
 	if err != nil {
@@ -93,11 +104,6 @@ func Bind(name string, deployment deployment.Deployment, opt Option) (map[Mode][
 			Contract: contract,
 			Package:  string(mode),
 		}
-		//if mode == Wrapper {
-		//	data.Imports = platform.MergeImports(data.Imports, map[string]string{
-		//		"contracts": "github.com/airbloc/airbloc-go/bind/contracts",
-		//	})
-		//}
 		if mode == Manager {
 			data.Imports = platform.ManagerImports(opt.Platform)
 		}
@@ -117,19 +123,18 @@ func bind(
 	data *template.Data,
 	opt Option,
 ) ([]byte, error) {
-	tmplPath, err := filepath.Abs(path.Join("./bind", "template", string(opt.Language), string(mode), "*"))
-	if err != nil {
-		return nil, err
-	}
-
 	buffer := new(bytes.Buffer)
 	functions := getInternalFuncs(mode, opt.Language)
-	t := tmpl.Must(tmpl.New(string(mode)).Funcs(functions).ParseGlob(tmplPath))
+	templates := getTemplate(mode, opt.Language)
+	t := tmpl.Must(tmpl.New(string(mode)).Funcs(functions).Parse(templates))
 	if err := t.ExecuteTemplate(buffer, string(mode), data); err != nil {
 		return nil, err
 	}
 
-	var code []byte
+	var (
+		code []byte
+		err  error
+	)
 
 	switch opt.Language {
 	case language.Go:

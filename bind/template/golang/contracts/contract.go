@@ -1,3 +1,6 @@
+package contracts
+
+const Contract = `
 {{define "contracts"}}
 package {{.Package}}
 
@@ -66,3 +69,4 @@ import (
         return contract, nil
     }
 {{end}}
+`
